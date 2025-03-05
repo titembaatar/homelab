@@ -1,0 +1,21 @@
+services:
+  sonarr:
+    container_name: sonarr
+    image: ghcr.io/hotio/sonarr
+    env_file:
+      - path: ./.env
+    environment:
+      - UMASK=002
+    networks:
+      - proxy
+    restart: unless-stopped
+    ports:
+      - "8989:8989"
+    volumes:
+      - /vault:/vault
+      - /config/homelab/volumes/sonarr/config:/config
+      - /config/homelab/volumes/sonarr/data:/data
+
+networks:
+  proxy:
+    external: true

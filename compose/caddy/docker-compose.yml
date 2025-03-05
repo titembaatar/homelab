@@ -1,0 +1,21 @@
+services:
+  caddy:
+    build:
+      dockerfile: ./build/Dockerfile
+    container_name: caddy
+    port: 
+      - ":80"
+      - ":443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - /config/homelab/volumes/caddy/data:/data
+      - /config/homelab/volumes/caddy/config:/config
+    env_file:
+      - ./.env
+    restart: unless-stopped
+    networks:
+      - proxy
+
+networks:
+  proxy:
+    external: true

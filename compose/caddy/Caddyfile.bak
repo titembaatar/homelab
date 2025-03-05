@@ -1,0 +1,74 @@
+{
+	email "etienne.l.guillemin@gmail.com"
+	acme_dns cloudflare {env.CF_API_TOKEN}
+}
+
+*.titem.top {
+	tls {
+		dns cloudflare {env.CF_API_TOKEN}
+	}
+}
+
+chingis.titem.top {
+	reverse_proxy "10.0.0.10:8006" {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+
+zev.titem.top {
+	reverse_proxy "10.0.0.11:8006" {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+
+backup.titem.top {
+	reverse_proxy "10.0.0.12:5001" {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+
+caddy.titem.top {
+	respond "Caddy is running."
+}
+
+qbit.titem.top {
+	reverse_proxy "10.0.0.103:8080"
+}
+
+nzbget.titem.top {
+	reverse_proxy "10.0.0.103:6789"
+}
+
+prowlarr.titem.top {
+	reverse_proxy "10.0.0.103:9696"
+}
+
+sonarr.titem.top {
+	reverse_proxy "10.0.0.103:8989"
+}
+
+radarr.titem.top {
+	reverse_proxy "10.0.0.103:7878"
+}
+
+bazarr.titem.top {
+	reverse_proxy "10.0.0.103:6767"
+}
+
+jellyseerr.titem.top {
+	reverse_proxy "10.0.0.103:5055"
+}
+
+notifiarr.titem.top {
+	reverse_proxy "10.0.0.103:5454"
+}
+
+plex.titem.top {
+	reverse_proxy "10.0.0.110:32400"
+}
