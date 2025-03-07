@@ -16,7 +16,7 @@ confirm() {
 }
 
 # Get Host IP address
-function get_host_ip () {
+get_host_ip () {
 	HOST_IP=$(ip a show eth0 | grep 'inet ' | awk '{print $2}' | cut -d'/' -f1)
 	echo "$HOST_IP"
 }

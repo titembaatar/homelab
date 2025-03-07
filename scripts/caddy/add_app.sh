@@ -8,6 +8,7 @@ APP_NAME=""
 DOMAIN="titem.top"
 RELOADED=false
 SKIP_PROMPT=false
+SPECIAL_CASE=false
 
 # Function to prompt for confirmation
 confirm() {
@@ -25,6 +26,7 @@ show_help() {
 	echo "Usage: $0 [OPTIONS]"
 	echo
 	echo "Options:"
+	echo "  --special-case    Add necessary config for special cases"
 	echo "  --name NAME       Set the app name"
 	echo "  --ip IP           Set the app IP address"
 	echo "  --port PORT       Set the app port"
@@ -37,6 +39,10 @@ show_help() {
 parse_arguments() {
 	while [ "$#" -gt 0 ]; do
 		case "$1" in
+			--special-case)
+				SPECIAL_CASE=true
+				shift 2
+				;;
 			--name)
 				APP_NAME="$2"
 				shift 2
@@ -84,6 +90,21 @@ update_caddyfile() {
 	echo "Caddyfile backed up."
 	echo "Updating Caddyfile..."
 	
+	if [ $SPECIAL_CASE = true ]; then
+		cat >> "$Caddyfile" << EOL
+
+${APP_NAME}.${DOMAIN} {
+	reverse_proxy "${APP_IP}:${APP_PORT}" {
+    transport http {
+      tls_insecure_skip_verify
+    }
+  }
+}
+EOL
+
+		echo "Caddyfile updated."
+		return 0
+	fi
 	cat >> "$Caddyfile" << EOL
 
 ${APP_NAME}.${DOMAIN} {
