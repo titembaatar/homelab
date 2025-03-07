@@ -12,9 +12,8 @@ services:
     ports:
       - "7878:7878"
     volumes:
-      - /vault:/vault
+      - /vault:/data
       - /config/homelab/volumes/radarr/config:/config
-      - /config/homelab/volumes/radarr/data:/data
 
 networks:
   proxy:

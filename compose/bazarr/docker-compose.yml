@@ -14,7 +14,7 @@ services:
       - "6767:6767"
     volumes:
       - /config/homelab/volumes/bazarr/config:/config
-      - /config/homelab/volumes/bazarr/data:/data
+      - /vault:/data
 
 networks:
   proxy:
