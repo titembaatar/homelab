@@ -1,5 +1,5 @@
 {
-	email "etienne.l.guillemin@gmail.com"
+	email "{env.CF_EMAIL}"
 	acme_dns cloudflare {env.CF_API_TOKEN}
 }
 
@@ -92,4 +92,12 @@ slskd.titem.top {
 			tls_insecure_skip_verify
 		}
 	}
+}
+
+immich.titem.top {
+	reverse_proxy "10.0.0.104:2283"
+}
+
+vw.titem.top {
+	reverse_proxy "10.0.0.105:80"
 }

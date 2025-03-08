@@ -3,9 +3,9 @@ services:
     build:
       dockerfile: ./build/Dockerfile
     container_name: caddy
-    port: 
-      - ":80"
-      - ":443"
+    ports: 
+      - 80:80
+      - 443:443
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile
       - /config/homelab/volumes/caddy/data:/data

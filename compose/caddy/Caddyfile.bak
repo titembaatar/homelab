@@ -1,5 +1,5 @@
 {
-	email "etienne.l.guillemin@gmail.com"
+	email "{env.CF_EMAIL}"
 	acme_dns cloudflare {env.CF_API_TOKEN}
 }
 
@@ -45,6 +45,11 @@ jellyfin.titem.top {
 	reverse_proxy "10.0.0.111:8096"
 }
 
+pihole.titem.top {
+	reverse_proxy "http://10.0.0.102:80"
+	redir / /admin
+}
+
 qbit.titem.top {
 	reverse_proxy "10.0.0.103:8080"
 }
@@ -79,4 +84,16 @@ notifiarr.titem.top {
 
 lidarr.titem.top {
 	reverse_proxy "10.0.0.103:8686"
+}
+
+slskd.titem.top {
+	reverse_proxy "10.0.0.103:5031" {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+
+immich.titem.top {
+	reverse_proxy "10.0.0.104:2283"
 }
