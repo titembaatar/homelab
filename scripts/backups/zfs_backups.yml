@@ -2,7 +2,7 @@
 backup_mount: "/mnt/pve/backups"
 creds_file: "/root/.smbcreds"
 retention: 5
-log_file: "/var/log/zfs-backup.log"
+log_file: "/var/log/zfs_backup.log"
 export_logs: true
 log_retention: 20
 backup_schedule:

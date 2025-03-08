@@ -300,13 +300,13 @@ export_log() {
     log "INFO" "Exporting logs to '$BACKUP_MOUNT/zfs_backups/logs'"
     
     # Copy log file with timestamp to prevent overwriting
-    cp "$LOG_FILE" "$BACKUP_MOUNT/zfs_backups/logs/zfs-backup_${log_timestamp}.log"
+    cp "$LOG_FILE" "$BACKUP_MOUNT/zfs_backups/logs/zfs_backups_${log_timestamp}.log"
     
     # Get log retention count, default to 20
     LOG_RETENTION=$(yq eval '.log_retention // 20' "$CONFIG_FILE")
     
     # Keep only the most recent LOG_RETENTION log files
-    find "$BACKUP_MOUNT/zfs_backups/logs" -name "zfs-backup_*.log" -type f -printf "%T@ %p\n" | \
+    find "$BACKUP_MOUNT/zfs_backups/logs" -name "zfs_backup_*.log" -type f -printf "%T@ %p\n" | \
       sort -rn | \
       tail -n +"$((LOG_RETENTION + 1))" | \
       cut -d' ' -f2- | \
