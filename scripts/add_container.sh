@@ -5,7 +5,10 @@ set -e
 APP_NAME=""
 APP_IMAGE=""
 APP_PORTS=()
+APP_ENV=()
+APP_ENV_VALUE=()
 APP_VOLUMES=()
+PROXY_PORT=""
 D_PATH="/config/homelab"
 USE_VAULT=true
 HOST_IP=$(ip a show eth0 | grep 'inet ' | awk '{print $2}' | cut -d'/' -f1)
@@ -42,6 +45,14 @@ PGID=1000
 TZ=Europe/Paris
 EOL
 
+	if [[ ${#APP_ENV[@]} != 0 ]]; then
+		for i in "${!APP_ENV[@]}"; do
+			cat >> "${D_PATH}/compose/${APP_NAME}/.env" << EOL
+${APP_ENV[$i]}=${APP_ENV_VALUE[$i]}
+EOL
+		done
+	fi
+
 	echo ".env file created."
 }
 
@@ -73,7 +84,7 @@ EOL
 
 	if [ $USE_VAULT = true ]; then
 		cat >> "${D_PATH}/compose/${APP_NAME}/docker-compose.yml" << EOL
-      - /vault:/vault
+      - /vault:/data
 EOL
 	fi
 
@@ -91,6 +102,14 @@ networks:
 EOL
 
 	echo "docker-compose.yml file created."
+}
+
+start_container() {
+	echo "Starting container..."
+	echo
+	docker compose -f "${D_PATH}/compose/${APP_NAME}/docker-compose.yml" up -d
+	echo
+	echo "Container started."
 }
 
 # Collect user input for configuration
@@ -111,9 +130,24 @@ collect_information() {
 	read -rp "Enter the container image : " input_image
 	[[ -n "$input_image" ]] && APP_IMAGE=$input_image
 	
-	# Ask for container volumes
+	# Ask for container ports
 	read -rp "Enter the ports necessary (space separated): " input_ports
 	read -ra APP_PORTS <<< "$input_ports"
+	
+	# Ask for environment variables and values
+	if confirm "Do you want to add environment variables and values ?"; then
+		while true; do
+			read -rp "Enter the environment variable: " input_env_var
+			APP_ENV+=("$input_env_var")
+
+			read -rp "Enter the environment value: " input_env_val
+			APP_ENV_VALUE+=("$input_env_val")
+
+			if ! confirm "Add another environment entry ?"; then
+				break
+			fi
+		done
+	fi
 	
 	# Ask for container volumes
 	read -rp "Enter the volumes necessary (space separated): " input_volumes
@@ -133,6 +167,10 @@ collect_information() {
 	echo "Ports:"
 	for port in "${APP_PORTS[@]}"; do
 		echo "  - $port"
+	done
+	echo "Environments:"
+	for i in "${!APP_ENV[@]}"; do
+		echo "  - ${APP_ENV[$i]}: ${APP_ENV_VALUE[$i]}"
 	done
 	echo "Volumes:"
 	for volume in "${APP_VOLUMES[@]}"; do
@@ -155,17 +193,30 @@ choose_port() {
 	echo
 	while true; do
 		echo "Please select the port to use for proxy :"
-		for i in "${!APP_PORTS[@]}"; do
-			echo "  $i. ${APP_PORTS[$i]}"
+		for port in "${APP_PORTS[@]}"; do
+			echo "  - ${port}"
 		done
 		echo
 		read -rp "Desired port : " selected_port
-		if confirm "Confirm the port ${selected_port}"; then
-			break
-		fi
-	done
-	echo "${selected_port}"
 
+		port_found=false
+		for port in "${APP_PORTS[@]}"; do
+			if [[ "$port" == "$selected_port" ]]; then
+				port_found=true
+				break
+			fi
+		done
+
+		if $port_found; then
+			if confirm "Confirm the port ${selected_port}"; then
+				PROXY_PORT="${selected_port}"
+				break
+			fi
+		fi
+
+		echo
+		echo "Port not found in the list. Try again."
+	done
 }
 
 add_to_proxy() {
@@ -189,7 +240,8 @@ add_to_proxy() {
 		echo "No port, aborting..."
 		exit 1
 	else
-		proxy_port=$(choose_port)
+		choose_port
+		proxy_port="$PROXY_PORT"
 	fi
 
 	SSH_COMMAND="ssh titem@10.0.0.101 ${D_PATH}/scripts/caddy/add_app.sh \\
@@ -215,6 +267,10 @@ main() {
 	create_directories 
 	create_env
 	create_docker_compose
+	echo
+	if confirm "Do you want to start container ?"; then
+		start_container 
+	fi
 	echo
 	echo "=== Container setup finished ==="
 	echo
