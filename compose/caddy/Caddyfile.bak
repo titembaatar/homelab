@@ -37,6 +37,14 @@ caddy.titem.top {
 	respond "Caddy is running."
 }
 
+plex.titem.top {
+	reverse_proxy "10.0.0.110:32400"
+}
+
+jellyfin.titem.top {
+	reverse_proxy "10.0.0.111:8096"
+}
+
 qbit.titem.top {
 	reverse_proxy "10.0.0.103:8080"
 }
@@ -69,6 +77,6 @@ notifiarr.titem.top {
 	reverse_proxy "10.0.0.103:5454"
 }
 
-plex.titem.top {
-	reverse_proxy "10.0.0.110:32400"
+lidarr.titem.top {
+	reverse_proxy "10.0.0.103:8686"
 }

@@ -45,6 +45,11 @@ jellyfin.titem.top {
 	reverse_proxy "10.0.0.111:8096"
 }
 
+pihole.titem.top {
+	reverse_proxy "http://10.0.0.102:80"
+	redir / /admin
+}
+
 qbit.titem.top {
 	reverse_proxy "10.0.0.103:8080"
 }
@@ -75,4 +80,16 @@ jellyseerr.titem.top {
 
 notifiarr.titem.top {
 	reverse_proxy "10.0.0.103:5454"
+}
+
+lidarr.titem.top {
+	reverse_proxy "10.0.0.103:8686"
+}
+
+slskd.titem.top {
+	reverse_proxy "10.0.0.103:5031" {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
 }
