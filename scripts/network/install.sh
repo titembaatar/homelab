@@ -5,7 +5,6 @@ set -e
 HOST_IP=$(ip a show eth0 | grep 'inet ' | awk '{print $2}' | cut -d'/' -f1)
 TAILSCALE=true
 PIHOLE=true
-UDPGRO=true
 
 # Function to prompt for confirmation
 confirm() {
@@ -30,6 +29,8 @@ install_pihole() {
 	echo "Installing Pi-Hole..."
 
 	# Install pihole
+	sudo systemctl stop systemd-resolved
+	sudo systemctl disable systemd-resolved
 	curl -sSL https://install.pi-hole.net | bash
 
 	echo "Pi-Hole installed."
@@ -38,10 +39,6 @@ install_pihole() {
 # Enable IP forwarding and make it permanant
 enable_firewall() {
 	echo "Configuring firewall..."
-
-	# Install firewalld and conf
-	sudo dnf install -y firewalld
-	sudo firewall-cmd --permanent --add-masquerade
 
 	# Configure firewall
 	if [[ -d "/etc/sysctl.d/" ]]; then
@@ -95,9 +92,7 @@ service_status() {
 		sudo pihole status
 	fi
 
-	if $UDPGRO; then
-		sudo systemctl status udp-gro-config.service
-	fi
+	sudo systemctl status udp-gro-config.service
 	
 	echo
 }
@@ -111,7 +106,7 @@ tailscale_setup() {
 	echo "in the \`Edit routes settings...\` menu,"
 	echo "validate the \`subnet routes\` and the \`exit node\`."
 	echo "Then go to \`DNS\` tab and add a nameserver with :"
-	echo "  - the tailscale IP of the LXC ( \`tailscale ip -4\` )"
+	echo "  - the IP of the LXC"
 	echo "  - Check \`Override local DNS\`"
 	echo
 }
@@ -145,17 +140,12 @@ collect_information() {
 		PIHOLE=false
 	fi
 	
-	if ! confirm "Do you want to configure UDP GRO forwarding (recommended) ?"; then
-		UDPGRO=false
-	fi
-	
 	# Confirm information
 	echo
 	echo "====== Configuration Summary ======"
 	echo
 	echo "TAILSCALE: ${TAILSCALE}"
 	echo "PIHOLE: ${PIHOLE}"
-	echo "UDP GRO forwarding: ${UDPGRO}"
 	echo
 	
 	if ! confirm "Is this correct? Continue with installation?"; then
@@ -181,10 +171,7 @@ main() {
 		install_pihole
 	fi
 
-	if $UDPGRO; then
-		udp_gro_forwarding 
-	fi
-
+	udp_gro_forwarding 
 	service_status
 	echo
 	echo "===== Network has been setup. ====="
