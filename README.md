@@ -4,6 +4,19 @@ A collection of scripts and configuration files for my homelab infrastructure. T
 ## 📚 Documentation
 Detailed documentation is available in the [Wiki](../../wiki).
 
+### Core Setup
+- [🚀 LXC Setup](../../wiki/LXC-Setup) - Container creation and base configuration
+- [📁 Samba Shares](../../wiki/Samba-Shares) - Network file sharing configuration
+- [🔐 Caddy Proxy](../../wiki/Caddy-Proxy) - Reverse proxy for secure service access
+- [🌐 Network Setup](../../wiki/Network-Setup) - Tailscale VPN and Pi-hole DNS
+
+### Services & Applications
+- [🐳 Docker Environment](../../wiki/Docker-Environment) - Container management system
+- [📷 Immich Setup](../../wiki/Immich-Setup) - Self-hosted photo and video backup solution
+
+### Maintenance & Security
+- [💾 Backup Strategy](../../wiki/Backup-Strategy) - ZFS and LXC backup procedures
+
 ## 🚀 Quick Start Guide
 ### PVE license nag
 To remove the proxmox popup at login, use [foundObjects/pve-nag-buster](https://github.com/foundObjects/pve-nag-buster/)
@@ -23,16 +36,7 @@ usermod -aG wheel titem
 ssh-copy-id -i ~/.ssh/id_ed25519.pub titem@<container-ip>
 ```
 
-### Available Configurations
-This repo includes setup instructions and automation scripts for:
-
-- **📁 Samba File Sharing** - Network storage
-- **🐳 Docker Environment** - Container management
-- **🔐 Caddy Reverse Proxy** - Secure access to services
-- **🌐 Network (Tailscale & Pi-hole)** - VPN and DNS
-- **💾 Backup Strategy** - LXC and ZFS backups
-
-## 📜 Scripts
+## 📜 Automation Scripts
 ### Container Management
 - `scripts/add_container.sh` - Automates Docker container setup
 
@@ -43,6 +47,9 @@ This repo includes setup instructions and automation scripts for:
 ### Network Setup
 - `scripts/network/install.sh` - Configures Tailscale and Pi-hole
 
+### LXC Helper Scripts
+- `scripts/lxc_samba/lxc_cifs_share.sh` - Mount SMB/CIFS shares to LXC containers
+
 ### Backup Management
 - `scripts/backups/zfs_backup.sh` - Manages ZFS snapshot backups
 
@@ -52,9 +59,9 @@ This repo includes setup instructions and automation scripts for:
 - Basic knowledge of Linux administration
 - Domain name with Cloudflare DNS (for Caddy)
 
-## 🔄 Usage Flow
+## 🔄 Deployment Workflow
 1. Create LXC containers in Proxmox
-2. Configure basic SSH access
+2. Configure basic SSH access using the quick start guide
 3. Clone this repository
 4. Run appropriate scripts for your needs
 5. Refer to the [Wiki](../../wiki) for detailed configuration instructions
