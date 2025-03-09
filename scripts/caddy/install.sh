@@ -64,7 +64,7 @@ create_caddyfile() {
 	
 	cat > /config/homelab/compose/caddy/Caddyfile << EOL
 {
-	email "${EMAIL}"
+	email {env.CF_EMAIL}
 	acme_dns cloudflare {env.CF_API_TOKEN}
 	acme_ca "${acme_ca}"
 }
@@ -89,6 +89,7 @@ create_caddy_env() {
 	
 	cat > /config/homelab/compose/caddy/.env << EOL
 CF_API_TOKEN=${CF_API_TOKEN}
+CF_EMAIL=${EMAIL}
 EOL
     
 	echo "Caddy .env file created."
