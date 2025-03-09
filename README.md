@@ -5,6 +5,9 @@ A collection of scripts and configuration files for my homelab infrastructure. T
 Detailed documentation is available in the [Wiki](../../wiki).
 
 ## 🚀 Quick Start Guide
+### PVE license nag
+To remove the proxmox popup at login, use [foundObjects/pve-nag-buster](https://github.com/foundObjects/pve-nag-buster/)
+
 ### LXC Container Setup
 Set up a new LXC container with:
 ```bash
