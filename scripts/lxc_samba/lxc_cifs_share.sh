@@ -63,7 +63,7 @@ echo "Creating mount point on PVE host..."
 mkdir -p /mnt/lxc_shares/"$folder_name"
 
 # Check if the fstab entry exists
-fstab_entry="//${cifs_host}/${share_name} /mnt/lxc_shares/${folder_name} cifs _netdev,x-systemd.automount,noatime,nobrl,uid=100000,gid=110000,dir_mode=0770,file_mode=0770,username=${smb_username},password=${smb_password} 0 0"
+fstab_entry="//${cifs_host}/${share_name} /mnt/lxc_shares/${folder_name} cifs _netdev,x-systemd.automount,noatime,nobrl,uid=100000,gid=110000,dir_mode=0775,file_mode=0775,username=${smb_username},password=${smb_password} 0 0"
 if ! grep -q "//${cifs_host}/${share_name} /mnt/lxc_shares/${folder_name}" /etc/fstab ; then
     echo "Adding NAS CIFS share to /etc/fstab with nobrl option..."
     echo "$fstab_entry" >> /etc/fstab
