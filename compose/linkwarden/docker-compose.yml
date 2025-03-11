@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    env_file: .env
+    user: "1000:10000"
+    restart: always
+    environment:
+      # So postgres wont do is shitty change of permissions... 
+      - PGDATA=/var/lib/postgresql/datadir
+    volumes:
+      - /data/linkwarden/pgdata:/var/lib/postgresql/datadir
+    networks:
+      - proxy
+
+  linkwarden:
+    image: ghcr.io/linkwarden/linkwarden:latest 
+    env_file: .env
+    user: "1000:10000"
+    restart: always
+    ports:
+      - 3000:3000
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/postgres
+    volumes:
+      - /data/linkwarden:/data/data
+    depends_on:
+      - postgres
+
+networks:
+  proxy:
+    external: true

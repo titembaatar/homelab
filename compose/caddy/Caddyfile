@@ -101,3 +101,7 @@ immich.titem.top {
 vw.titem.top {
 	reverse_proxy "10.0.0.105:80"
 }
+
+linkwarden.titem.top {
+	reverse_proxy "10.0.0.105:3000"
+}

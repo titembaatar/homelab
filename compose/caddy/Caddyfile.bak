@@ -97,3 +97,7 @@ slskd.titem.top {
 immich.titem.top {
 	reverse_proxy "10.0.0.104:2283"
 }
+
+vw.titem.top {
+	reverse_proxy "10.0.0.105:80"
+}
