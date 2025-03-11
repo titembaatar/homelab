@@ -6,7 +6,7 @@ Detailed documentation is available in the [Wiki](../../wiki).
 
 ### Core Setup
 - [🚀 LXC Setup](../../wiki/LXC-Setup) - Container creation and base configuration
-- [📁 Samba Shares](../../wiki/Samba-Shares) - Network file sharing configuration
+- [📁 Files Sharing](../../wiki/Files-Sharing) - Network file sharing configuration
 - [🔐 Caddy Proxy](../../wiki/Caddy-Proxy) - Reverse proxy for secure service access
 - [🌐 Network Setup](../../wiki/Network-Setup) - Tailscale VPN and Pi-hole DNS
 
