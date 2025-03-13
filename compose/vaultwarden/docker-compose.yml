@@ -2,6 +2,7 @@ services:
   vaultwarden:
     image: vaultwarden/server:latest
     container_name: vaultwarden
+    user: 1000:1000
     restart: unless-stopped
     ports:
       - 80:80
