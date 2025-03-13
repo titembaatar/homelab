@@ -1,0 +1,18 @@
+services:
+  defaulterr:
+    container_name: defaulterr
+    image: varthe/defaulterr:latest
+    env_file:
+      - path: ./.env
+    networks:
+      - proxy
+    restart: unless-stopped
+    ports:
+      - "3184:3184"
+    volumes:
+      - /config/homelab/volumes/defaulterr/config:/config
+      - /config/homelab/volumes/defaulterr/logs:/logs
+
+networks:
+  proxy:
+    external: true
