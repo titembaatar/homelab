@@ -58,6 +58,14 @@ nzbget.titem.top {
 	reverse_proxy "10.0.0.103:6789"
 }
 
+slskd.titem.top {
+	reverse_proxy "10.0.0.103:5031" {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}
+
 prowlarr.titem.top {
 	reverse_proxy "10.0.0.103:9696"
 }
@@ -68,6 +76,10 @@ sonarr.titem.top {
 
 radarr.titem.top {
 	reverse_proxy "10.0.0.103:7878"
+}
+
+lidarr.titem.top {
+	reverse_proxy "10.0.0.103:8686"
 }
 
 bazarr.titem.top {
@@ -82,16 +94,16 @@ notifiarr.titem.top {
 	reverse_proxy "10.0.0.103:5454"
 }
 
-lidarr.titem.top {
-	reverse_proxy "10.0.0.103:8686"
+tautulli.titem.top {
+	reverse_proxy "10.0.0.103:8181"
 }
 
-slskd.titem.top {
-	reverse_proxy "10.0.0.103:5031" {
-		transport http {
-			tls_insecure_skip_verify
-		}
-	}
+home.titem.top {
+	reverse_proxy "10.0.0.104:3001"
+}
+
+speed.titem.top {
+	reverse_proxy "10.0.0.104:8070"
 }
 
 immich.titem.top {
@@ -99,13 +111,13 @@ immich.titem.top {
 }
 
 vw.titem.top {
-	reverse_proxy "10.0.0.105:80"
+	reverse_proxy "10.0.0.104:80"
 }
 
 linkwarden.titem.top {
-	reverse_proxy "10.0.0.106:3000"
+	reverse_proxy "10.0.0.104:3000"
 }
 
-tautulli.titem.top {
-	reverse_proxy "10.0.0.103:8181"
+posteria.titem.top {
+	reverse_proxy "10.0.0.104:1818"
 }

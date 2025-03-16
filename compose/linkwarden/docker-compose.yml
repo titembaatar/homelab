@@ -21,7 +21,7 @@ services:
     ports:
       - 3000:3000
     environment:
-      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@10.0.0.106:5432/postgres
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@10.0.0.104:5432/postgres
     volumes:
       - /data/linkwarden:/data/data
     depends_on:
