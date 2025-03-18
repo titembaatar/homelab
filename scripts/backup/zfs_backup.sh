@@ -104,39 +104,64 @@ backup_dataset() {
 }
 
 remove_old_backup() {
-	mapfile -t ALL_BACKUP_FILES < <(find "$BACKUP_DIR/$SCHEDULE_TYPE" \
-		-maxdepth 1 -type f -o -type d | \
-		grep -v "/current$" | \
-		sort -r)
-	local files_count=${#ALL_BACKUP_FILES[@]}
-	local to_delete=$((files_count - RETENTION))
-
-	log "Applying retention policy for $SCHEDULE_TYPE (keeping $RETENTION backups)" "INFO"
-	log "Found $files_count existing backups" "INFO"
-
-	if ! [ "$files_count" -gt "$RETENTION" ]; then
-		log "No old backups need to be deleted (have $files_count, retention is $RETENTION)" "INFO"
-		return 0
-	fi
-	log "Need to delete $to_delete old backups" "INFO"
-		
-	# Loop through the files to delete, starting from the oldest
-	for ((i=RETENTION; i<files_count; i++)); do
-		file="${ALL_BACKUP_FILES[$i]}"
-
-		if [ -z "$file" ]; then
-			continue
-		fi
-
-		log "Deleting old backup: $file" "INFO"
-
-		if ! rm -rf "$file"; then
-			log "Failed to delete: $file" "ERROR"
-			continue
-		fi
-
-		log "Successfully deleted: $file" "SUCCESS"
-	done
+  # Apply retention separately for each dataset
+  for dataset in $DATASETS; do
+    # The pattern needs to match files like: TIMESTAMP_dataset.zfs (e.g., 250318_070001_config_config.zfs)
+    local dataset_file_pattern="${dataset//\//_}.zfs"
+    log "Applying retention policy for dataset $dataset ($SCHEDULE_TYPE, keeping $RETENTION backups)" "INFO"
+    
+    # Find all backups for this specific dataset, sorted by timestamp (newest first)
+    # IMPORTANT: Only look for files (-type f), never directories
+    # The sort ensures newest backups are first (based on the YYMMDD_HHMMSS timestamp prefix)
+    mapfile -t DATASET_BACKUPS < <(find "$BACKUP_DIR/$SCHEDULE_TYPE" \
+      -maxdepth 1 -type f -name "*_${dataset_file_pattern}" | \
+      sort -r)
+      
+    # Debug: Show what files were found for this dataset
+    log "Files found for dataset $dataset:" "DEBUG"
+    for file in "${DATASET_BACKUPS[@]}"; do
+      log "  - $file" "DEBUG"
+    done
+    
+    local files_count=${#DATASET_BACKUPS[@]}
+    log "Found $files_count existing backups for dataset $dataset" "INFO"
+    
+    # Skip if we don't have more backups than the retention policy
+    if [ "$files_count" -le "$RETENTION" ]; then
+      log "No old backups need to be deleted for dataset $dataset (have $files_count, retention is $RETENTION)" "INFO"
+      continue
+    fi
+    
+    local to_keep=$RETENTION
+    local to_delete=$((files_count - to_keep))
+    log "Need to delete $to_delete old backups for dataset $dataset" "INFO"
+    
+    # Loop through the files to delete, starting from index that corresponds to files beyond retention
+    for ((i=to_keep; i<files_count; i++)); do
+      file="${DATASET_BACKUPS[$i]}"
+      
+      if [ -z "$file" ]; then
+        log "Empty file entry detected at position $i, skipping" "WARN"
+        continue
+      fi
+      
+      # Extra safety check: make sure it's a file, not a directory
+      if [ ! -f "$file" ]; then
+        log "Not a regular file, skipping: $file" "WARN"
+        continue
+      fi
+      
+      log "Deleting old backup: $file" "INFO"
+      
+      # Use rm -f for files only, never rm -rf
+      if ! rm -f "$file"; then
+        log "Failed to delete: $file" "ERROR"
+        continue
+      fi
+      
+      log "Successfully deleted: $file" "SUCCESS"
+    done
+  done
 }
 
 remove_old_log() {
