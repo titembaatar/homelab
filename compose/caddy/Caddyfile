@@ -98,8 +98,16 @@ tautulli.titem.top {
 	reverse_proxy "10.0.0.103:8181"
 }
 
+watchstate.titem.top {
+	reverse_proxy "10.0.0.103:8060"
+}
+
+uptime.titem.top {
+	reverse_proxy "10.0.0.103:3001"
+}
+
 home.titem.top {
-	reverse_proxy "10.0.0.104:3001"
+	reverse_proxy "10.0.0.104:8080"
 }
 
 speed.titem.top {
@@ -120,4 +128,8 @@ linkwarden.titem.top {
 
 posteria.titem.top {
 	reverse_proxy "10.0.0.104:1818"
+}
+
+beszel.titem.top {
+	reverse_proxy "10.0.0.104:7070"
 }
