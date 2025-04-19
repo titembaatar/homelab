@@ -1,0 +1,7 @@
+- type: repository
+  title: homelab
+  token: ${TOKEN_GITHUB_RO}
+  repository: titembaatar/homelab
+  pull-requests-limit: 5
+  issues-limit: 5
+  commits-limit: 5

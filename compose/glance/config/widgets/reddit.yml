@@ -1,0 +1,16 @@
+- type: group
+  widgets:
+    - type: reddit
+      subreddit: selfhosted
+      show-thumbnails: true
+      collapse-after: 6
+    - type: reddit
+      subreddit: homelab
+      show-thumbnails: true
+      collapse-after: 6
+    - type: reddit
+      subreddit: unixporn
+      style: vertical-cards
+    - type: reddit
+      subreddit: houseplants
+      style: vertical-cards

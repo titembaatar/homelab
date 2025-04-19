@@ -1,0 +1,9 @@
+- type: releases
+  title: terminal
+  token: ${TOKEN_GITHUB_RO}
+  show-source-icon: true
+  repositories:
+    - kovidgoyal/kitty
+    - tmux/tmux
+    - jandedobbeleer/oh-my-posh
+    - be5invis/Iosevka

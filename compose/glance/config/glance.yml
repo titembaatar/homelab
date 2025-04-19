@@ -1,0 +1,89 @@
+server:
+  assets-path: /app/assets
+  port: 8080
+
+theme:
+  custom-css-file: /assets/user.css
+  background-color: 156 24 11
+  primary-color: 349 60 85
+  negative-color: 0 100 70
+
+pages:
+  - name: home
+    expand-mobile-page-navigation: true
+    show-mobile-header: true
+    columns:
+      - size: small
+        widgets:
+          !include: widgets/weather.yml
+          !include: widgets/clock.yml
+          !include: widgets/calendar.yml
+      - size: full
+        widgets:
+          !include: widgets/videos.yml
+          !include: widgets/reddit.yml
+      - size: small
+        widgets:
+          !include: ./widgets/formula1.yaml
+  - name: homelab
+    expand-mobile-page-navigation: true
+    show-mobile-header: true
+    columns:
+      - size: small
+        widgets:
+          !include: widgets/monitor_servarr.yml
+          !include: widgets/monitor_media.yml
+          !include: widgets/monitor_services.yml
+      - size: full
+        widgets:
+          !include: widgets/tautulli-history.yml
+          !include: widgets/jellyfin-history.yml
+          !include: widgets/immich.yml
+          !include: widgets/qbit.yml
+      - size: small
+        widgets:
+          !include: widgets/tautulli.yml
+          !include: widgets/jellyfin.yml
+  - name: test
+    expand-mobile-page-navigation: true
+    show-mobile-header: true
+    columns:
+      - size: small
+        widgets:
+          !include: widgets/plex-history.yml
+          !include: widgets/tautulli-history.yml
+          !include: widgets/jellyfin-history.yml
+      - size: full
+        widgets:
+          !include: widgets/tautulli-history.yml
+          !include: widgets/plex-history.yml
+          !include: widgets/jellyfin-history.yml
+          !include: widgets/plex.yml
+          !include: widgets/tautulli.yml
+          !include: widgets/jellyfin.yml
+      - size: small
+        widgets:
+          !include: widgets/plex.yml
+          !include: widgets/tautulli.yml
+          !include: widgets/jellyfin.yml
+  - name: github
+    expand-mobile-page-navigation: true
+    show-mobile-header: true
+    columns:
+      - size: small
+        widgets:
+          !include: widgets/repo/sarnai.yml
+          !include: widgets/repo/sarnai.nvim.yml
+          !include: widgets/repo/homelab.yml
+          !include: widgets/repo/dotfiles.yml
+      - size: full
+        widgets:
+          - type: split-column
+            max-columns: 3
+            widgets:
+              !include: widgets/repo/glance.yml
+              !include: widgets/repo/linux.yml
+              !include: widgets/repo/servarr.yml
+              !include: widgets/repo/neovim.yml
+              !include: widgets/repo/docker.yml
+              !include: widgets/repo/terminal.yml

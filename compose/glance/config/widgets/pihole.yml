@@ -1,0 +1,4 @@
+- type: dns-stats
+  service: pihole-v6
+  url: http://10.0.0.102:80
+  password: ${PIHOLE_PASSWORD}

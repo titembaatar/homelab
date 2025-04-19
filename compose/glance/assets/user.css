@@ -1,0 +1,9 @@
+/* Overwrite */
+body {
+	font-family: 'Iosevka', 'JetBrains Mono', monospace;
+	font-variant-ligatures: normal;
+	font-weight: 500;
+}
+.uppercase {
+	text-transform: lowercase;
+}

@@ -1,0 +1,33 @@
+- type: monitor
+  cache: 5s
+  title: servarr
+  style: compact
+  sites:
+    - title: qbit
+      url: http://10.0.0.103:8080
+      alt-status-codes:
+        - 403
+    - title: nzbget
+      url: http://10.0.0.103:6789
+      alt-status-codes:
+        - 403
+    - title: slskd
+      url: http://10.0.0.103:5030
+      alt-status-codes:
+        - 403
+    - title: prowlarr
+      url: http://10.0.0.103:9696
+      alt-status-codes:
+        - 403
+    - title: sonarr
+      url: http://10.0.0.103:8989
+      alt-status-codes:
+        - 403
+    - title: radarr
+      url: http://10.0.0.103:7878
+      alt-status-codes:
+        - 403
+    - title: lidarr
+      url: http://10.0.0.103:8686
+      alt-status-codes:
+        - 403

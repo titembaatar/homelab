@@ -1,0 +1,7 @@
+- type: clock
+  hour-format: 24h
+  timezones:
+    - timezone: Asia/Ulaanbaatar
+      label: Mongolia
+    - timezone: Japan
+      label: Japan
