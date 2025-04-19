@@ -1,0 +1,22 @@
+services:
+  beszel:
+    image: henrygd/beszel
+    container_name: beszel
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - 7070:8090
+    volumes:
+      - /config/homelab/volumes/beszel/data:/beszel_data
+      - /config/homelab/volumes/beszel/socket:/beszel_socket
+
+  beszel-agent:
+    image: "henrygd/beszel-agent"
+    container_name: "beszel-agent"
+    restart: unless-stopped
+    network_mode: host
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      LISTEN: 45876
+      KEY: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKbcv8BRPMv9oe0Yeyyi0VlKPYDxJSySgrIWkLnrWC7i"
