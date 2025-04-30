@@ -2,7 +2,7 @@ services:
   nzbget:
     container_name: nzbget
     image: ghcr.io/hotio/nzbget
-    restart: unless-stopped
+    restart: always
     ports:
       - "6789:6789"
     env_file: .env
@@ -20,8 +20,8 @@ services:
       - PRIVOXY_ENABLED=false
       - UNBOUND_ENABLED=false
     volumes:
-        - /config/homelab/volumes/nzbget/config:/config
-        - /vault:/data
+        - /yesugen/nzbget/config:/config
+        - /juerbiesu:/data
     cap_add:
       - NET_ADMIN
     sysctls:
@@ -32,10 +32,10 @@ services:
 
   qbittorrent:
     container_name: qbittorrent
-    image: ghcr.io/hotio/qbittorrent
+    image: ghcr.io/hotio/qbittorrent:release-5.0.5
     ports:
       - "8080:8080"
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - UMASK=002
@@ -52,8 +52,8 @@ services:
       - PRIVOXY_ENABLED=false
       - UNBOUND_ENABLED=false
     volumes:
-        - /config/homelab/volumes/qbittorrent/config:/config
-        - /vault:/data
+        - /yesugen/qbittorrent/config:/config
+        - /juerbiesu:/data
     cap_add:
       - NET_ADMIN
     sysctls:
@@ -68,27 +68,27 @@ services:
     restart: on-failure:2
     env_file: .qbit_manage.env
     volumes:
-      - /config/homelab/volumes/qbit_manage/config:/config:rw
-      - /vault/torrents/:/data/torrents:rw
-      - /config/homelab/volumes/qbittorrent:/qbittorent:ro
-      - /config/homelab/volumes/qbittorrent/config/data/BT_backup:/BT_backup:ro
+      - /yesugen/qbit_manage/config:/config:rw
+      - /juerbiesu/torrents/:/data/torrents:rw
+      - /yesugen/qbittorrent:/qbittorent:ro
+      - /yesugen/qbittorrent/config/data/BT_backup:/BT_backup:ro
     networks:
       - proxy
 
   gluetun:
     container_name: gluetun
     image: qmcgaw/gluetun
-    restart: unless-stopped
+    restart: always
     ports:
       - 8888:8888/tcp # HTTP proxy
       - 8388:8388/tcp # Shadowsocks
       - 8388:8388/udp # Shadowsocks
-      - "5030:5030"
-      - "5031:5031"
-      - "50300:50300"
+      - "5030:5030"   #slskd
+      - "5031:5031"   #slskd
+      - "50300:50300" #slksd
     env_file: .gluetun.env
     volumes:
-      - /config/homelab/volumes/gluetun/config:/gluetun
+      - /yesugen/gluetun/config:/gluetun
     cap_add:
       - NET_ADMIN
     devices:
@@ -99,89 +99,89 @@ services:
   slskd:
     container_name: slskd
     image: slskd/slskd
-    restart: unless-stopped
+    restart: always
     env_file: .slskd.env
     network_mode: "service:gluetun"
     volumes:
-      - /config/homelab/volumes/slskd/slskd.yml:/app/slskd.yml
-      - /vault:/data
+      - /yesugen/slskd/slskd.yml:/app/slskd.yml
+      - /juerbiesu:/data
 
   soularr:
     container_name: soularr
     image: mrusse08/soularr:latest
-    restart: unless-stopped
+    restart: always
     env_file: .env
     environment:
       - SCRIPT_INTERVAL=3600
     volumes:
-      - /vault:/data
-      - /config/homelab/volumes/soularr/config/config.ini:/data/config.ini
+      - /juerbiesu:/data
+      - /yesugen/soularr/config/config.ini:/data/config.ini
     networks:
       - proxy
 
   prowlarr:
     container_name: prowlarr
     image: ghcr.io/hotio/prowlarr
-    restart: unless-stopped
+    restart: always
     ports:
       - "9696:9696"
     env_file: .env
     environment:
       - UMASK=002
     volumes:
-      - /config/homelab/volumes/prowlarr/config:/config
+      - /yesugen/prowlarr/config:/config
     networks:
       - proxy
 
   sonarr:
     container_name: sonarr
     image: ghcr.io/hotio/sonarr
-    restart: unless-stopped
+    restart: always
     ports:
       - "8989:8989"
     env_file: .env
     environment:
       - UMASK=002
     volumes:
-      - /vault:/data
-      - /config/homelab/volumes/sonarr/config:/config
+      - /juerbiesu:/data
+      - /yesugen/sonarr/config:/config
     networks:
       - proxy
 
   radarr:
     container_name: radarr
     image: ghcr.io/hotio/radarr
-    restart: unless-stopped
+    restart: always
     ports:
       - "7878:7878"
     env_file: .env
     environment:
       - UMASK=002
     volumes:
-      - /vault:/data
-      - /config/homelab/volumes/radarr/config:/config
+      - /juerbiesu:/data
+      - /yesugen/radarr/config:/config
     networks:
       - proxy
 
   lidarr:
     container_name: lidarr
     image: ghcr.io/hotio/lidarr
-    restart: unless-stopped
+    restart: always
     ports:
       - "8686:8686"
     env_file: .env
     environment:
       - UMASK=002
     volumes:
-      - /vault:/data
-      - /config/homelab/volumes/lidarr/config:/config
+      - /juerbiesu:/data
+      - /yesugen/lidarr/config:/config
     networks:
       - proxy
 
   bazarr:
     container_name: bazarr
     image: ghcr.io/hotio/bazarr
-    restart: unless-stopped
+    restart: always
     ports:
       - "6767:6767"
     env_file: .env
@@ -189,49 +189,49 @@ services:
       - UMASK=002
       - WEBUI_PORTS=6767/tcp,6767/udp
     volumes:
-      - /config/homelab/volumes/bazarr/config:/config
-      - /vault:/data
+      - /yesugen/bazarr/config:/config
+      - /juerbiesu:/data
     networks:
       - proxy
 
   jellyseerr:
     container_name: jellyseerr
     image: ghcr.io/hotio/jellyseerr
-    restart: unless-stopped
+    restart: always
     ports:
       - "5055:5055"
     env_file: .env
     environment:
       - UMASK=002
     volumes:
-      - /config/homelab/volumes/jellyseerr/config:/config
+      - /yesugen/jellyseerr/config:/config
     networks:
       - proxy
 
   defaulterr:
     container_name: defaulterr
     image: varthe/defaulterr:latest
-    restart: unless-stopped
+    restart: always
     ports:
       - "3184:3184"
     env_file: .env
     environment:
       - LOG_LEVEL=info
     volumes:
-      - /config/homelab/volumes/defaulterr/config:/config
-      - /config/homelab/volumes/defaulterr/logs:/logs
+      - /yesugen/defaulterr/config:/config
+      - /yesugen/defaulterr/logs:/logs
     networks:
       - proxy
 
   notifiarr:
     container_name: notifiarr
     image: golift/notifiarr
-    restart: unless-stopped
+    restart: always
     ports:
       - "5454:5454"
     env_file: .env
     volumes:
-      - /config/homelab/volumes/notifiarr/config:/config
+      - /yesugen/notifiarr/config:/config
       - /var/run/utmp:/var/run/utmp
       - /etc/machine-id:/etc/machine-id
     networks:
@@ -240,14 +240,23 @@ services:
   tautulli:
     container_name: tautulli
     image: ghcr.io/tautulli/tautulli
-    restart: unless-stopped
+    restart: always
     ports:
       - "8181:8181"
     env_file: .env
     volumes:
-      - /config/homelab/volumes/tautulli/config:/config
+      - /yesugen/tautulli/config:/config
     networks:
       - proxy
+
+  beszel-agent:
+    container_name: "beszel-agent"
+    image: "henrygd/beszel-agent"
+    restart: always
+    network_mode: host
+    env_file: .beszel-agent.env
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
 
 networks:
   proxy:

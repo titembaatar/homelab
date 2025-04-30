@@ -133,3 +133,7 @@ posteria.titem.top {
 beszel.titem.top {
 	reverse_proxy "10.0.0.104:7070"
 }
+
+photos.titem.top {
+	reverse_proxy "10.0.0.104:2283"
+}
