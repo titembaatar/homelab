@@ -1,6 +1,6 @@
-#  Proxmox ZFS Pools
+# 💽 Proxmox ZFS Pools
 
-##  ZFS Dataset Setup
+## ZFS Dataset Setup
 
 ### Create an Independent Dataset
 You can create as many datasets as you want.
@@ -31,7 +31,7 @@ zfs set atime=off flash && \
 zfs set recordsize=1M flash
 ```
 
-##  User and Group Setup
+## User and Group Setup
 
 ### Create User and Group
 Create a group for shared access and a user:
@@ -57,7 +57,7 @@ chmod -R 775 /vault/juerbiesu /vault/khulan /flash/yesugen /flash/yesugen /flash
 chmod g+s /vault/juerbiesu /vault/khulan /flash/yesugen /flash/yesugen /flash/moge_khatun
 ```
 
-## 󰡰 NFS Server Setup
+## NFS Server Setup
 
 ### Install NFS Server
 Install the necessary NFS server packages:
@@ -93,7 +93,7 @@ systemctl enable --now nfs-kernel-server
 systemctl status nfs-kernel-server
 ```
 
-## 󰡰 Samba Server Setup
+## Samba Server Setup
 
 ### Install Samba
 Install Samba server packages:
@@ -181,7 +181,7 @@ systemctl enable --now smbd
 systemctl status smbd
 ```
 
-## 󱩛 Client Configuration
+## Client Configuration
 
 ### Mounting NFS Shares on Linux
 ```bash

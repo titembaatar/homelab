@@ -1,4 +1,4 @@
-# 󰉋 Directory Structure
+# 📁 Directory Structure
 
 ## ZFS Pool Vault
 ```

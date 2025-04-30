@@ -1,4 +1,4 @@
-#  Proxmox HA
+# ❤️‍🔥 Proxmox HA
 
 ## Prerequisites
 - Fully functional Proxmox cluster (see [Proxmox Cluster](./cluster.md))

@@ -1,32 +1,32 @@
-#  Homelab Wiki
+# 🗄️ Homelab Wiki
 
-##  Homelab Components
+## 🧩 Homelab Components
 
-###  My Homelab
-* [ Naming Convention](./homelab/naming-convention.md) - Naming inspired by Chingis Khan's Empire
-* [󰉋 Directory Structure](./homelab/directory-structure.md) - ZFS Pools/Subpools structure
+### 🐎 My Homelab
+* [🏷️ Naming Convention](./homelab/naming-convention.md) - Naming inspired by Chingis Khan's Empire
+* [📁 Directory Structure](./homelab/directory-structure.md) - ZFS Pools/Subpools structure
 
-###  Core Setup
-* [ Proxmox ZFS Pools](./proxmox/zfs-pools.md) - Storage creation and sharing via NFS/SMB
-* [ Proxmox Cluster](./proxmox/cluster.md) - Proxmox cluster creation
-* [ VMs Setup ](./proxmox/vms-setup.md) - Setting up a blank VMs
-* [ Proxmox HA](./proxmox/ha.md) - Proxmox HA setup
+### ⚙️ Core Setup
+* [💽 Proxmox ZFS Pools](./proxmox/zfs-pools.md) - Storage creation and sharing via NFS/SMB
+* [🖥️ Proxmox Cluster](./proxmox/cluster.md) - Proxmox cluster creation
+* [💻 VMs Setup ](./proxmox/vms-setup.md) - Setting up a blank VMs
+* [❤️‍🔥 Proxmox HA](./proxmox/ha.md) - Proxmox HA setup
 
-###  Environments
-* [ Docker](./env/docker.md) - Quick install of docker on VMs
-* [ Docker Swarm](./env/docker-swarm.md) - Setup of Docker Swarm
+### 🏗️ Environments
+* [🐋 Docker](./env/docker.md) - Quick install of docker on VMs
+* [🐋🐋 Docker Swarm](./env/docker-swarm.md) - Setup of Docker Swarm
 
-###  Stacks/Containers
+### 📦 Stacks/Containers
 * Gateway Stack :
-    * [󰌾 Caddy Reverse Proxy](./con/caddy-reverse-proxy.md)
-    * [󱠾 Pangolin Tunnel](./con/pangolin-tunnel.md)
-    * [󰓠 Crowdsec and Fail2Ban](./con/crowdsec-fail2ban.md)
-* [󰄀 Immich (DB container example)](./con/immich.md)
+    * [🔒 Caddy Reverse Proxy](./con/caddy-reverse-proxy.md)
+    * [🦔 Pangolin Tunnel](./con/pangolin-tunnel.md)
+    * [🦙 Crowdsec and Fail2Ban](./con/crowdsec-fail2ban.md)
+* [📷 Immich (DB container example)](./con/immich.md)
 
-### 󰁯 Backup
-* [󰁯 Backup Strategy](./backup/strategy.md) - Backup strategy for VMs, ZFS subpools etc...
+### 📥 Backup
+* [📥 Backup Strategy](./backup/strategy.md) - Backup strategy for VMs, ZFS subpools etc...
 
-## 󰯁 Automation Scripts
+## 📜 Automation Scripts
 Here is several helper scripts concatenate in my tool [flem](https://github.com/titembaatar/flem) to make deployment easier:
 
 | Script | Purpose |

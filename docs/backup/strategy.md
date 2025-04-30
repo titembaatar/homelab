@@ -1,4 +1,4 @@
-# 󰁯 Backup Strategy
+# 📥 Backup Strategy
 
 ## ZFS Backup Script
 The `zfs_backup.sh` script provides an automated solution for backing up ZFS datasets with configurable retention policies.
