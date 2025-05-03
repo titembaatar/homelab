@@ -9,4 +9,5 @@
 * [🔒 Security Approach](./homelab/security.md) - High-level software architecture used in the homelab.
 * [📥 Homelab Backup Strategy](./homelab/backup.md) - Backup strategy for the homelab
 * [🔑 Secrets Management Strategy](./homelab/backup.md) - Secrets handling for the Docker Swarm
+* [🛠️ Update & Maintenance Philosophy](./homelab/backup.md) - Maintenance in the homelab.
 
