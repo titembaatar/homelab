@@ -44,6 +44,27 @@ pages:
         widgets:
           !include: widgets/tautulli.yml
           !include: widgets/jellyfin.yml
+  - name: github
+    expand-mobile-page-navigation: true
+    show-mobile-header: true
+    columns:
+      - size: small
+        widgets:
+          !include: widgets/repo/sarnai.yml
+          !include: widgets/repo/sarnai.nvim.yml
+          !include: widgets/repo/homelab.yml
+          !include: widgets/repo/dotfiles.yml
+      - size: full
+        widgets:
+          - type: split-column
+            max-columns: 3
+            widgets:
+              !include: widgets/repo/glance.yml
+              !include: widgets/repo/linux.yml
+              !include: widgets/repo/servarr.yml
+              !include: widgets/repo/neovim.yml
+              !include: widgets/repo/docker.yml
+              !include: widgets/repo/terminal.yml
   - name: test
     expand-mobile-page-navigation: true
     show-mobile-header: true
@@ -66,24 +87,3 @@ pages:
           !include: widgets/plex.yml
           !include: widgets/tautulli.yml
           !include: widgets/jellyfin.yml
-  - name: github
-    expand-mobile-page-navigation: true
-    show-mobile-header: true
-    columns:
-      - size: small
-        widgets:
-          !include: widgets/repo/sarnai.yml
-          !include: widgets/repo/sarnai.nvim.yml
-          !include: widgets/repo/homelab.yml
-          !include: widgets/repo/dotfiles.yml
-      - size: full
-        widgets:
-          - type: split-column
-            max-columns: 3
-            widgets:
-              !include: widgets/repo/glance.yml
-              !include: widgets/repo/linux.yml
-              !include: widgets/repo/servarr.yml
-              !include: widgets/repo/neovim.yml
-              !include: widgets/repo/docker.yml
-              !include: widgets/repo/terminal.yml

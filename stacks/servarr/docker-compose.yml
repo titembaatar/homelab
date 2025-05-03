@@ -65,7 +65,7 @@ services:
   qbit_manage:
     container_name: qbit_manage
     image: ghcr.io/stuffanthings/qbit_manage:latest
-    restart: on-failure:2
+    restart: always
     env_file: .qbit_manage.env
     volumes:
       - /yesugen/qbit_manage/config:/config:rw

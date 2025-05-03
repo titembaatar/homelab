@@ -4,30 +4,30 @@
   style: compact
   sites:
     - title: qbit
-      url: http://10.0.0.103:8080
+      url: http://10.0.0.120:8080
       alt-status-codes:
         - 403
     - title: nzbget
-      url: http://10.0.0.103:6789
+      url: http://10.0.0.120:6789
       alt-status-codes:
         - 403
     - title: slskd
-      url: http://10.0.0.103:5030
+      url: http://10.0.0.120:5030
       alt-status-codes:
         - 403
     - title: prowlarr
-      url: http://10.0.0.103:9696
+      url: http://10.0.0.120:9696
       alt-status-codes:
         - 403
     - title: sonarr
-      url: http://10.0.0.103:8989
+      url: http://10.0.0.120:8989
       alt-status-codes:
         - 403
     - title: radarr
-      url: http://10.0.0.103:7878
+      url: http://10.0.0.120:7878
       alt-status-codes:
         - 403
     - title: lidarr
-      url: http://10.0.0.103:8686
+      url: http://10.0.0.120:8686
       alt-status-codes:
         - 403
