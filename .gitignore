@@ -1,5 +1,0 @@
-.env
-*.env
-volumes/
-certs/
-code/

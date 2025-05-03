@@ -1,7 +1,0 @@
-- type: repository
-  title: glance
-  token: ${TOKEN_GITHUB_RO}
-  repository: glanceapp/glance
-  pull-requests-limit: 5
-  issues-limit: 5
-  commits-limit: 5

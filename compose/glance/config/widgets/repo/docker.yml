@@ -1,8 +1,0 @@
-- type: releases
-  title: docker
-  show-source-icon: true
-  token: ${TOKEN_GITHUB_RO}
-  repositories:
-    - immich-app/immich
-    - dani-garcia/vaultwarden
-    - linkwarden/linkwarden

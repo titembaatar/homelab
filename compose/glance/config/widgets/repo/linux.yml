@@ -1,8 +1,0 @@
-- type: releases
-  title: linux
-  token: ${TOKEN_GITHUB_RO}
-  show-source-icon: true
-  repositories:
-    - swaywm/sway
-    - philj56/tofi
-    - Alexays/Waybar

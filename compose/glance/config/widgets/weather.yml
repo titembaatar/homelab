@@ -1,3 +1,0 @@
-- type: weather
-  hour-format: 24h
-  location: ${CITY}
