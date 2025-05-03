@@ -1,0 +1,25 @@
+backup_dir: /mnt/pve/backup/zfs_backup
+log_dir: /mnt/pve/backup/zfs_backup/log
+log_retention: 20
+
+backup_schedule:
+  hourly:
+    enabled: false
+    retention: 24
+  daily:
+    enabled: true
+    retention: 7
+  weekly:
+    enabled: true
+    retention: 4
+  monthly:
+    enabled: true
+    retention: 12
+  yearly:
+    enabled: true
+    retention: 2
+
+# What to backup - adjust these to your actual VMs/containers/datasets
+datasets:
+  - "config/config"
+  - "vault/db"

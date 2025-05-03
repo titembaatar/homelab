@@ -7,4 +7,5 @@
 * [🛠️ Homelab Hardware](./homelab/hardware.md) - Hardware components used in the homelab.
 * [🏗️ Software Stack Overview](./homelab/software-stack.md) - High-level software architecture used in the homelab.
 * [🔒 Security Approach](./homelab/security.md) - High-level software architecture used in the homelab.
+* [📥 Homelab Backup Strategy](./homelab/backup.md) - Backup strategy for the homelab
 
