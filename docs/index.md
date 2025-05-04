@@ -11,3 +11,5 @@
 * [🔑 Secrets Management Strategy](./homelab/backup.md) - Secrets handling for the Docker Swarm
 * [🛠️ Update & Maintenance Philosophy](./homelab/backup.md) - Maintenance in the homelab.
 
+## Proxmox
+* [# 💽 ZFS, NFS & SMB](./proxmox/zfs_nfs_smb_share.md) - configure ZFS datasets and set up NFS and SMB shares
