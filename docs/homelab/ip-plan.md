@@ -18,21 +18,21 @@
 | Hostname     | Device/Role                | Reserved IP      | Notes                                       |
 | :----------- | :------------------------- | :--------------- | :------------------------------------------ |
 | **Infrastructure & Physical** |             |                  |                                             |
-| `Chingis`    | Main Workstation           | `10.0.0.10`      | Set Interface to DHCP                     |
-| `mukhulai`   | Proxmox Host 1 / NFS Server| `10.0.0.11`      | Set Interface to DHCP                     |
-| `borchi`     | Proxmox Host 2             | `10.0.0.12`      | Set Interface to DHCP                     |
-| `borokhul`   | Proxmox Host 3             | `10.0.0.13`      | Set Interface to DHCP                     |
-| *(Future Host)*| Proxmox Host 4           | `10.0.0.14`      | *(Reserved)* |
-| *(Future Host)*| Proxmox Host 5           | `10.0.0.15`      | *(Reserved)* |
+| `Chingis`    | Main Workstation           | `10.0.0.7`      | Set Interface to DHCP                     |
+| `mukhulai`   | Proxmox Host 1 / NFS Server| `10.0.0.10`      | Set Interface to DHCP                     |
+| `borchi`     | Proxmox Host 2             | `10.0.0.11`      | Set Interface to DHCP                     |
+| `borokhul`   | Proxmox Host 3             | `10.0.0.12`      | Set Interface to DHCP                     |
+| *(Future Host)*| Proxmox Host 4           | `10.0.0.13`      | *(Reserved)* |
+| *(Future Host)*| Proxmox Host 5           | `10.0.0.14`      | *(Reserved)* |
 | `borte`      | Backup NAS                 | `10.0.0.19`      | Set Interface to DHCP                     |
 | **Docker Swarm Managers (`Unench Nokhod`)** | |                |                                             |
-| `subeedei`   | Swarm Manager 1 VM         | `10.0.0.21`      | VM Network set to DHCP                  |
-| `zev`        | Swarm Manager 2 VM         | `10.0.0.22`      | VM Network set to DHCP                  |
-| `khubilai`   | Swarm Manager 3 VM         | `10.0.0.23`      | VM Network set to DHCP                  |
+| `subeedei`   | Swarm Manager 1 VM         | `10.0.0.20`      | VM Network set to DHCP                  |
+| `zev`        | Swarm Manager 2 VM         | `10.0.0.21`      | VM Network set to DHCP                  |
+| `khubilai`   | Swarm Manager 3 VM         | `10.0.0.22`      | VM Network set to DHCP                  |
 | **Docker Swarm Workers** |                    |                  |                                             |
-| `uriankhai`   | Swarm Worker 1 VM          | `10.0.0.31`     `| VM Network set to DHCP                  |
-| `besud`      | Swarm Worker 2 VM          | `10.0.0.32`      | VM Network set to DHCP                  |
-| `baarin`     | Swarm Worker 3 VM          | `10.0.0.33`      | VM Network set to DHCP                  |
+| `uriankhai`   | Swarm Worker 1 VM          | `10.0.0.30`     `| VM Network set to DHCP                  |
+| `besud`      | Swarm Worker 2 VM          | `10.0.0.31`      | VM Network set to DHCP                  |
+| `baarin`     | Swarm Worker 3 VM          | `10.0.0.32`      | VM Network set to DHCP                  |
 | **Utility Services (Examples)** |             |                  |                                             |
 | `pihole`     | Pi-hole VM     | `10.0.0.53`      | VM Network set to DHCP |
 | `adguard`    | AdGuard Home VM | `10.0.0.54`      | VM Network set to DHCP |
@@ -41,8 +41,8 @@
 While Pi-hole is widely known as a network-level ad-blocker, it also serves a crucial function in this homelab as the **primary internal DNS server**.
 * Pi-hole allows defining custom **Local DNS Records** via its web interface.
 * We map the easy-to-remember hostnames defined in the [Naming Convention](./naming-convention.md) to their corresponding static IP addresses.
-    * Example Record 1: `mukhulai.lan` -> `10.0.0.11`
-    * Example Record 2: `subeedei.lan` -> `10.0.0.21`
+    * Example Record 1: `mukhulai.lan` -> `10.0.0.10`
+    * Example Record 2: `subeedei.lan` -> `10.0.0.20`
 
 **Choosing a Domain Suffix:**
 * It is strongly recommended to use a private domain suffix like **`.lan`** or **`.internal`** for these local records.
@@ -51,7 +51,7 @@ While Pi-hole is widely known as a network-level ad-blocker, it also serves a cr
 **Result:**
 * Once Pi-hole is running (e.g., on its reserved IP `10.0.0.53`) and the DHCP server is configured to assign Pi-hole's IP as the DNS server to all network clients, we can access homelab devices and services using their hostnames plus the chosen suffix.
 * Examples:
-    * `ssh user@mukhulai.lan` (instead of `ssh user@10.0.0.11`)
+    * `ssh user@mukhulai.lan` (instead of `ssh user@10.0.0.10`)
     * Services configured to talk to each other can use these internal names.
 
 **Setup Overview:**
