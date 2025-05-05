@@ -19,3 +19,4 @@
 
 ## 🐳 Docker Swarm mode
 * [🐳 Swarm Setup](./swarm/setup.md) - setup docker swarm
+* [🐳 Stacks Deployment](./swarm/stack_deployment.md) - how to deploy including overlay networks and secrets management
