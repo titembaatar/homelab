@@ -25,7 +25,7 @@ Creating a template ensures consistency across all Swarm nodes.
 6.  **Disks Tab:**
     * **Bus/Device:** `VirtIO Block` (or `SCSI` if preferred).
     * **Storage:** `local` (or your local VM storage).
-    * **Disk size (GiB):** `16`.
+    * **Disk size (GiB):** `32`.
     * **SSD emulation:** Check if using SSD storage.
 7.  **CPU Tab:**
     * **Cores:** `2` (Template default, can be adjusted per VM later).
@@ -55,7 +55,7 @@ Creating a template ensures consistency across all Swarm nodes.
 2. **Install Essential Tools:**
     ```bash
     sudo apt update
-    sudo apt install -y sudo curl wget gnupg apt-transport-https ca-certificates lsb-release nfs-common qemu-guest-agent htop git
+    sudo apt install -y sudo
     ```
 3. **Run [env script](../../scripts/env/setup.sh)**
 4. **Enable Qemu Guest Agent:**
@@ -88,9 +88,9 @@ docker --version
     ```
 2. **Clear Bash History:**
     ```bash
-    history -c
+    truncate -s 0 ~/.bash_history
     rm ~/.bash_history
-    # Repeat for root user if necessary (su -; history -c; rm ~/.bash_history; exit)
+    # Repeat for root
     ```
 3. **Reset Machine ID (Optional but Recommended):** Ensures cloned VMs get unique IDs.
     ```bash
@@ -117,11 +117,11 @@ Plan the resources for each type of node:
 * **Managers (`subeedei`, `zev`, `khubilai`):**
     * vCPUs: `2`
     * RAM: `2048` MiB (2 GB)
-    * Disk: `16` GiB (Using `local`)
+    * Disk: `32` GiB
 * **Workers (`uriankhai`, `besud`, `baarin`):**
     * vCPUs: `2` *(Adjust based on expected workload, start low)*
     * RAM: `4096` MiB (4 GB) *(Adjust based on expected workload)*
-    * Disk: `16` GiB (Using `local`)
+    * Disk: `32` GiB
 
 ### Clone Manager VMs
 Repeat these steps three times for managers:
@@ -131,7 +131,7 @@ Repeat these steps three times for managers:
 4. **Target Node:** Choose a Proxmox host (distribute them, e.g., `subeedei` on `mukhulai`, `zev` on `borchi`, `khubilai` on `borokhul`).
 5. **VM ID:** Assign unique IDs (e.g., `120`, `121`, `122`).
 6. **Name:** Set the correct hostname (e.g., `subeedei`, `zev`, `khubilai`).
-7. **Storage:** Select `local`.
+7. **Storage:** Select `moge_khatun`.
 8. Click **"Clone"**.
 9. **After Cloning:**
     * Select the newly cloned VM.
@@ -148,7 +148,7 @@ Repeat these steps three times for workers:
 4. **Target Node:** Choose a Proxmox host (distribute them).
 5. **VM ID:** Assign unique IDs (e.g., `130`, `131`, `132`).
 6. **Name:** Set the correct hostname (e.g., `uriankhai`, `besud`, `baarin`).
-7. **Storage:** Select `local`.
+7. **Storage:** Select `moge_khatun`.
 8. Click **"Clone"**.
 9. **After Cloning:**
     * Select the newly cloned VM.

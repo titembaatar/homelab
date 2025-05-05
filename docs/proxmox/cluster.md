@@ -32,7 +32,7 @@ Choose **one node** to initiate the cluster creation. We will use `mukhulai` (`1
     ```
 2.  **Create the cluster:**
     ```bash
-    pvecm create khuleg_baatar
+    pvecm create khuleg-baatar
     ```
 3.  **Verify:** Check the cluster status on the first node. It will show one node and likely complain about no quorum (this is expected until more nodes join).
     ```bash
@@ -74,15 +74,7 @@ Now, configure the storage resources that will be available across the cluster i
 
 1.  **Access Proxmox Web UI:** Log into the web interface of any node.
 2.  **Navigate to Storage:** Go to `Datacenter` -> `Storage`.
-3.  **Configure Local Storage (for VM Disks):**
-    * **Identify Local Storage:** By default, Proxmox usually creates storage on the installation disk, often named `local` (Directory type) and `local-lvm` (LVM-Thin type) or similar if you installed on ZFS (e.g., `local-zfs`). Identify the storage intended for VM/LXC disks that exists *locally* on *each* node (e.g., `local-lvm`).
-    * **Edit the Existing Local Storage:** Select the appropriate local storage entry (e.g., `local-lvm`). Click `Edit`.
-    * **Content:** Ensure `Disk image` and `Container` are selected.
-    * **Nodes:** Ensure **all nodes** (`mukhulai`, `borchi`, `borokhul`) are selected/enabled for this storage definition. This allows Proxmox to know that this storage ID exists on all nodes for offline migration targets.
-    * **Enable:** Ensure it's enabled.
-    * Click `OK`.
-    * ***Note:** This configuration enables **offline migration** by allowing Proxmox to copy disk images between the identically named local storage pools on different nodes. It does **not** provide High Availability or live migration.*
-4.  **Add NFS Storage:**
+3.  **Add NFS Storage:**
     * Click `Add` -> `NFS`.
     * **ID:** `<nfs_share>`
     * **Server:** `10.0.0.10` (IP of `mukhulai`)
@@ -91,7 +83,7 @@ Now, configure the storage resources that will be available across the cluster i
     * **Nodes:** Select *all* nodes.
     * **Enable:** Ensure it's enabled.
     * Click `Add`.
-5.  **Add NFS Storage (Backups):**
+4.  **Add NFS Storage (Backups):**
     * Click `Add` -> `NFS`.
     * **ID:** `backups`
     * **Server:** `10.0.0.19` (IP of `Borte`)
