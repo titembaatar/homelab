@@ -17,3 +17,5 @@
 * [🖥️ Debian Bare-Metal VM](./proxmox/debian_vms.md) - setup Debian VMs barebone
 * [🐳 Docker Swarm VM](./proxmox/cluster.md) - setup VMs for docker swarm
 
+## 🐳 Docker Swarm mode
+* [🐳 Swarm Setup](./swarm/setup.md) - setup docker swarm
