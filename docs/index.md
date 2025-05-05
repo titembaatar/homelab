@@ -14,5 +14,6 @@
 ## Proxmox
 * [# 💽 ZFS, NFS & SMB](./proxmox/zfs_nfs_smb_share.md) - configure ZFS datasets and set up NFS and SMB shares
 * [⚙️ Proxmox VE Cluster](./proxmox/cluster.md) - setup Proxmox cluster
+* [🖥️ Debian Bare-Metal VM](./proxmox/debian_vms.md) - setup Debian VMs barebone
 * [🐳 Docker Swarm VM](./proxmox/cluster.md) - setup VMs for docker swarm
 
