@@ -8,6 +8,17 @@ NEOVIM_INSTALL_PREFIX="/usr/local"
 OHMYPOSH_INSTALL_DIR="/usr/local/bin"
 
 PACKAGES=(
+  curl
+  wget
+  gnupg
+  apt-transport-https
+  ca-certificates
+  lsb-release
+  nfs-common
+  cifs-utils
+  qemu-guest-agent
+  htop
+  git
   stow
   zsh
   unzip
@@ -79,7 +90,7 @@ setup_dotfiles() {
     print_error "Stow command not found, but should have been installed. Check package installation."
   fi
   cd "$DOTFILES_DIR"
-  stow nvim ohmyposh
+  stow nvim ohmyposh zsh
 
   cd "$HOME"
 
