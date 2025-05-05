@@ -22,8 +22,8 @@ Before deploying stacks, create overlay networks that services can use to commun
 # Create a network for ingress services
 docker network create --driver overlay --attachable caddy_net
 
-# Create a network for media services
-docker network create --driver overlay --attachable media_internal
+# Create a network for servarr
+docker network create --driver overlay --attachable servarr_net
 
 # Create additional networks as needed for isolation
 docker network create --driver overlay --attachable monitoring_net
@@ -31,37 +31,27 @@ docker network create --driver overlay --attachable database_net
 ```
 
 List all networks to verify creation:
-
 ```bash
 docker network ls --filter driver=overlay
 ```
 
 ## Managing Docker Secrets
-
 Create secrets to securely handle sensitive information:
-
 ```bash
 # Method 1: Create a secret from standard input
-echo "your-cloudflare-api-token" | docker secret create cloudflare_api_token -
+echo "my-secret" | docker secret create my-secret -
 
 # Method 2: Create a secret from a file
-docker secret create tunnel_token /path/to/tunnel_token_file
-
-# Add more secrets as needed
-docker secret create db_password /path/to/database_password_file
-docker secret create tiny_auth_secret /path/to/tiny_auth_secret_file
+docker secret create my-secret /path/to/my-secret
 ```
 
 List all created secrets:
-
 ```bash
 docker secret ls
 ```
 
 ## Creating a Stack File
-
 Create a `docker-compose.yml` file with Swarm-specific configurations:
-
 ```yaml
 version: '3.8'  # Must be at least 3.x for Swarm
 
@@ -147,10 +137,8 @@ secrets:
 
 ## Key Swarm-Specific Features
 
-### 1. The `deploy` Section
-
+### The `deploy` Section
 This Swarm-only section controls how services are deployed:
-
 ```yaml
 deploy:
   replicas: 3  # Number of container instances
@@ -176,10 +164,8 @@ deploy:
       - node.labels.region == eu  # Only run on nodes with specific labels
 ```
 
-### 2. External Networks and Secrets
-
+### External Networks and Secrets
 Reference pre-created networks and secrets:
-
 ```yaml
 networks:
   frontend:
@@ -191,10 +177,8 @@ secrets:
     external: true  # Use a pre-created secret
 ```
 
-### 3. NFS Volumes for Persistence
-
+### NFS Volumes for Persistence
 Configure volumes to use NFS for distributed storage:
-
 ```yaml
 volumes:
   config_data:
@@ -206,11 +190,8 @@ volumes:
 ```
 
 ## Deploying a Stack
-
 Deploy a stack from your compose file:
-
 ```bash
-# Change to the directory containing your docker-compose.yml
 cd /mnt/yesui/stacks/my-stack
 
 # Deploy the stack
@@ -218,9 +199,7 @@ docker stack deploy -c docker-compose.yml my-stack-name
 ```
 
 ## Managing Stacks
-
 Common stack management commands:
-
 ```bash
 # List all stacks
 docker stack ls
@@ -242,9 +221,7 @@ docker stack rm my-stack-name
 ```
 
 ## Example: Real-World Stack File
-
-Here's an example of a more comprehensive stack for your homelab:
-
+Here's an example of a more comprehensive stack:
 ```yaml
 version: '3.8'
 
@@ -325,7 +302,6 @@ secrets:
 ```
 
 ## Best Practices for Swarm Stack Files
-
 1. **Always use specific image tags** (e.g., `nginx:1.25.1-alpine`) instead of `latest`
 2. **Define update policies** to control how services are updated
 3. **Use placement constraints** to control where services run
@@ -335,6 +311,5 @@ secrets:
 7. **Use NFS volumes** for persistent data across the swarm
 8. **Organize services into multiple stacks** by function (e.g., monitoring, media, databases)
 9. **Create separate overlay networks** for isolation between service groups
-10. **Document your stacks** with comments in the YAML files
 
-Following these practices will help you maintain a stable, secure, and manageable Docker Swarm environment.
+Following these practices will help maintain a stable, secure, and manageable Docker Swarm environment.
