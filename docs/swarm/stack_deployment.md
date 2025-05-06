@@ -10,24 +10,18 @@ While both use the same YAML syntax, there are important differences between Doc
 | Networks | Basic bridge networks | Overlay networks across nodes |
 | Volumes | Local volumes | Can use NFS or other distributed storage |
 | Environment variables | Supported | Supported |
+| Environment file | Supported | Not Supported |
 | Secrets | Limited support | Native secrets management |
 | Deployment config | Not applicable | Replicas, update policy, placement constraints |
 | Scaling | Manual scaling | Automated scaling and orchestration |
 | Commands in YAML | Supports `command` | Supports `command` |
-| Build from Dockerfile | Supports `build` | **Does not support** `build` (use pre-built images only) |
+| Build from Dockerfile | Supports `build` | **Does not support** `build` (pre-built images in `Dockerfile/`) |
 
 ## Creating Overlay Networks
 Before deploying stacks, create overlay networks that services can use to communicate across nodes:
 ```bash
 # Create a network for ingress services
 docker network create --driver overlay --attachable caddy_net
-
-# Create a network for servarr
-docker network create --driver overlay --attachable servarr_net
-
-# Create additional networks as needed for isolation
-docker network create --driver overlay --attachable monitoring_net
-docker network create --driver overlay --attachable database_net
 ```
 
 List all networks to verify creation:
@@ -39,10 +33,13 @@ docker network ls --filter driver=overlay
 Create secrets to securely handle sensitive information:
 ```bash
 # Method 1: Create a secret from standard input
-echo "my-secret" | docker secret create my-secret -
+echo "my-secret" | docker secret create secret-name -
 
 # Method 2: Create a secret from a file
-docker secret create my-secret /path/to/my-secret
+docker secret create secret-name /path/to/my-secret
+
+# Method 3: Use `scripts/swarm/create-secret.sh`
+./create-secret.sh secret-name "my-secret"
 ```
 
 List all created secrets:
@@ -53,140 +50,42 @@ docker secret ls
 ## Creating a Stack File
 Create a `docker-compose.yml` file with Swarm-specific configurations:
 ```yaml
-version: '3.8'  # Must be at least 3.x for Swarm
-
 services:
-  web:
-    image: nginx:alpine  # Must use pre-built images, no 'build' directive
-    deploy:  # Swarm-specific section
-      replicas: 2
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: start-first
-      restart_policy:
-        condition: on-failure
-        max_attempts: 3
-      placement:
-        constraints:
-          - node.role == worker  # Run only on worker nodes
-    ports:
-      - "8080:80"
-    networks:
-      - frontend
+  container:
+    image: image
     volumes:
-      - web_content:/usr/share/nginx/html
-    secrets:  # Mount secrets as files
-      - source: web_cert
-        target: /etc/ssl/cert.pem
-        mode: 0400  # Read-only permission
-
-  db:
-    image: postgres:14
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.labels.storage == true  # Run on nodes with 'storage' label
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_DB=mydb
-      # Don't put passwords here; use secrets instead
-    volumes:
-      - db_data:/var/lib/postgresql/data
-    networks:
-      - backend
+      - volume:/data
     secrets:
-      - source: db_password
-        target: /run/secrets/db_password
-    command: postgres -c config_file=/etc/postgresql/postgresql.conf
-    healthcheck:
-      test: ["CMD", "pg_isready", "-U", "user"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
+      - my-secret
+    networks:
+      - external
+      - stack
+    deploy:
+      labels:
+        caddy: http://service.example.com
+        caddy.reverse_proxy: "{{upstreams <port>}}"
+        caddy.import: tinyauth_forwarder *
+      # placement:
+      #   constraints:
+      #     - node.role == manager
+
+volumes:
+  volume:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.0.10,rw,defaults,soft,_netdev,noatime,nodiratime
+      device: ":/path/to/nfs-share"
 
 networks:
-  frontend:
-    external: true  # Reference a pre-created overlay network
-    name: caddy_net  # Name in 'docker network ls'
-  backend:
+  external:
+    external: true
+  stack:
     driver: overlay
-    attachable: true  # Allow standalone containers to attach
-
-volumes:
-  web_content:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.0.0.10,nfsvers=4,rw,soft,noatime,nodiratime
-      device: ":/flash/yesugen/web"
-  db_data:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.0.0.10,nfsvers=4,rw,soft,noatime,nodiratime
-      device: ":/vault/khulan/postgres"
 
 secrets:
-  web_cert:
-    external: true  # Reference a pre-created secret
-  db_password:
-    external: true  # Reference a pre-created secret
-```
-
-## Key Swarm-Specific Features
-
-### The `deploy` Section
-This Swarm-only section controls how services are deployed:
-```yaml
-deploy:
-  replicas: 3  # Number of container instances
-  update_config:
-    parallelism: 1  # Update one container at a time
-    delay: 10s  # Wait 10s between updating containers
-    failure_action: rollback  # What to do if update fails
-    order: start-first  # Start new container before stopping old one
-  restart_policy:
-    condition: on-failure
-    delay: 5s
-    max_attempts: 3
-  resources:
-    limits:
-      cpus: '0.5'
-      memory: 50M
-    reservations:
-      cpus: '0.1'
-      memory: 20M
-  placement:
-    constraints:
-      - node.role == worker  # Only run on worker nodes
-      - node.labels.region == eu  # Only run on nodes with specific labels
-```
-
-### External Networks and Secrets
-Reference pre-created networks and secrets:
-```yaml
-networks:
-  frontend:
-    external: true  # Use a pre-created network
-    name: caddy_net  # The actual name from 'docker network ls'
-
-secrets:
-  api_token:
-    external: true  # Use a pre-created secret
-```
-
-### NFS Volumes for Persistence
-Configure volumes to use NFS for distributed storage:
-```yaml
-volumes:
-  config_data:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.0.0.10,nfsvers=4,rw,soft,noatime,nodiratime
-      device: ":/flash/yesugen/config"
+  my-secret:
+    external: true
 ```
 
 ## Deploying a Stack
@@ -204,11 +103,11 @@ Common stack management commands:
 # List all stacks
 docker stack ls
 
-# List services in a stack
-docker stack services my-stack-name
-
 # List tasks (containers) in a stack
 docker stack ps my-stack-name
+
+# List services in a stack
+docker stack services my-stack-name
 
 # View logs for a service
 docker service logs my-stack-name_service-name
@@ -219,97 +118,3 @@ docker stack deploy -c docker-compose.yml my-stack-name
 # Remove a stack
 docker stack rm my-stack-name
 ```
-
-## Example: Real-World Stack File
-Here's an example of a more comprehensive stack:
-```yaml
-version: '3.8'
-
-services:
-  # Reverse Proxy / TLS Termination
-  caddy:
-    image: caddy:2.7.4
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - caddy_data:/data
-      - caddy_config:/config
-      - /mnt/yesugen/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
-    environment:
-      - PUID=1000
-      - PGID=1000
-    networks:
-      - caddy_net
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      update_config:
-        parallelism: 1
-        delay: 10s
-        order: start-first
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-
-  # Cloudflare Tunnel
-  cloudflared:
-    image: cloudflare/cloudflared:2023.8.0
-    command: tunnel run
-    environment:
-      - PUID=1000
-      - PGID=1000
-    volumes:
-      - /mnt/yesugen/cloudflared:/etc/cloudflared
-    networks:
-      - caddy_net
-    deploy:
-      replicas: 1
-      placement:
-        constraints:
-          - node.role == manager
-      restart_policy:
-        condition: any
-        delay: 5s
-        max_attempts: 3
-    secrets:
-      - tunnel_token
-
-volumes:
-  caddy_data:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.0.0.10,nfsvers=4,rw,soft,noatime,nodiratime
-      device: ":/flash/yesugen/caddy/data"
-  caddy_config:
-    driver: local
-    driver_opts:
-      type: nfs
-      o: addr=10.0.0.10,nfsvers=4,rw,soft,noatime,nodiratime
-      device: ":/flash/yesugen/caddy/config"
-
-networks:
-  caddy_net:
-    external: true
-
-secrets:
-  tunnel_token:
-    external: true
-```
-
-## Best Practices for Swarm Stack Files
-1. **Always use specific image tags** (e.g., `nginx:1.25.1-alpine`) instead of `latest`
-2. **Define update policies** to control how services are updated
-3. **Use placement constraints** to control where services run
-4. **Configure health checks** for services to enable automatic healing
-5. **Use configs and secrets** instead of environment variables for sensitive data
-6. **Set resource limits** to prevent a single service from consuming all resources
-7. **Use NFS volumes** for persistent data across the swarm
-8. **Organize services into multiple stacks** by function (e.g., monitoring, media, databases)
-9. **Create separate overlay networks** for isolation between service groups
-
-Following these practices will help maintain a stable, secure, and manageable Docker Swarm environment.
