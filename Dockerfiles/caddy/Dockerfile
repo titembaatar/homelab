@@ -1,0 +1,13 @@
+ARG CADDY_VERSION=2.10.0
+FROM caddy:${CADDY_VERSION}-builder AS builder
+
+RUN xcaddy build \
+  --with github.com/lucaslorentz/caddy-docker-proxy/v2@v2.9.2 \
+  --with github.com/caddy-dns/cloudflare@v0.2.1 \
+  --with github.com/hslatman/caddy-crowdsec-bouncer/http@v0.8.1
+
+FROM caddy:${CADDY_VERSION}-alpine
+
+COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+
+CMD ["caddy", "docker-proxy"]
