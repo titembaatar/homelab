@@ -1,0 +1,164 @@
+services:
+  caddy:
+    image: titembaatar/caddy-labels-cf-crowdsec:v2.10.2
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - TZ=Europe/Paris
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+      - caddy_logs:/var/log/caddy
+      - /mnt/yesugen/caddy/Caddyfile:/etc/caddy/Caddyfile
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    secrets:
+      - cloudflare-token
+      - cloudflare-email
+      - crowdsec-api-key
+    networks:
+      - caddy_net
+      - gateway_net
+    deploy:
+      labels:
+        caddy_0: "*.titem.top"
+        caddy_0.tls.dns: "cloudflare {file./run/secrets/cloudflare-token}"
+        caddy_0.log.output: "file /var/log/caddy/access.log"
+        caddy_1.debug:
+        caddy_1.crowdsec.api_url: "http://crowdsec:8080"
+        caddy_1.crowdsec.api_key: "{file./run/secrets/crowdsec-api-key}"
+        caddy_1.crowdsec.ticker_interval: "15s"
+        caddy_2: (tinyauth_forwarder)
+        caddy_2.forward_auth: tinyauth:3000
+        caddy_2.forward_auth.uri: /api/auth/caddy
+      placement:
+        constraints:
+          - node.role == manager
+
+  tunnel:
+    image: cloudflare/cloudflared:2025.4.2
+    command: tunnel run
+    environment:
+      - TZ=Europe/Paris
+      - PUID=1000
+      - PGID=1000
+      - TUNNEL_TOKEN_FILE=/run/secrets/tunnel-token
+    volumes:
+      - tunnel_config:/etc/cloudflared
+    secrets:
+      - tunnel-token
+    networks:
+      - gateway_net
+
+  tinyauth:
+    image: ghcr.io/steveiliop56/tinyauth:v3.3.1
+    environment:
+      - TZ=Europe/Paris
+      - PUID=1000
+      - PGID=1000
+      - APP_URL=https://tinyauth.titem.top
+      - APP_TITLE=[auth]
+      - GITHUB_CLIENT_ID=Ov23lix5dfANcSolKBqT
+      - GOOGLE_CLIENT_ID=979314899175-ss6ievtvgi7rc4fgtda2jmrrpqrpqai5.apps.googleusercontent.com
+      - SECRET_FILE=/run/secrets/tinyauth-secret
+      - GITHUB_CLIENT_SECRET_FILE=/run/secrets/github-client
+      - GOOGLE_CLIENT_SECRET_FILE=/run/secrets/google-client
+      - USER_FILE=/users/users_file
+      - OAUTH_WHITELIST=etienne.l.guillemin@gmail.com
+    volumes:
+      - tinyauth_users_dir:/users:ro
+    secrets:
+      - tinyauth-secret
+      - github-client
+      - google-client
+    networks:
+      - caddy_net
+      - gateway_net
+    deploy:
+      labels:
+        caddy: "tinyauth.titem.top"
+        caddy.reverse_proxy: "{{upstreams 3000}}"
+
+  crowdsec:
+    image: crowdsecurity/crowdsec:v1.6.8
+    environment:
+      - TZ=Europe/Paris
+      - GID=1000
+      - COLLECTIONS=crowdsecurity/caddy
+    volumes:
+      - crowdsec_config:/etc/crowdsec
+      - crowdsec_db:/var/lib/crowdsec/data
+      - caddy_logs:/var/log/caddy:ro
+    networks:
+      - gateway_net
+
+volumes:
+  caddy_data:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.0.10,rw,defaults,soft,_netdev,noatime,nodiratime
+      device: ":/flash/yesugen/caddy/data"
+  caddy_config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.0.10,rw,defaults,soft,_netdev,noatime,nodiratime
+      device: ":/flash/yesugen/caddy/config"
+  caddy_logs:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.0.10,rw,defaults,soft,_netdev,noatime,nodiratime
+      device: ":/flash/yesugen/caddy/logs"
+  tunnel_config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.0.10,rw,defaults,soft,_netdev,noatime,nodiratime
+      device: ":/flash/yesugen/cloudflared"
+  tinyauth_users_dir:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.0.10,rw,defaults,soft,_netdev,noatime,nodiratime
+      device: ":/flash/yesugen/tinyauth/users"
+  crowdsec_config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.0.10,rw,defaults,soft,_netdev,noatime,nodiratime
+      device: ":/flash/yesugen/crowdsec/config"
+  crowdsec_db:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: addr=10.0.0.10,rw,defaults,soft,_netdev,noatime,nodiratime
+      device: ":/vault/khulan/crowdsec"
+
+networks:
+  caddy_net:
+    external: true
+  gateway_net:
+    driver: overlay
+
+secrets:
+  cloudflare-token:
+    external: true
+  cloudflare-email:
+    external: true
+  tunnel-token:
+    external: true
+  tinyauth-secret:
+    external: true
+  tinyauth-users:
+    external: true
+  github-client:
+    external: true
+  google-client:
+    external: true
+  crowdsec-api-key:
+    external: true
