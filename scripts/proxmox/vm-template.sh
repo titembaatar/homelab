@@ -42,6 +42,12 @@ cat << EOF > $USER_DATA_FILE
 timezone: Europe/Paris
 hostname: $VM_NAME
 users:
+  - name: root
+    passwd: $PWD_HASH
+    ssh_authorized_keys:
+      - $SSH_KEY
+    shell: /bin/zsh
+users:
   - name: $USER_NAME
     groups: sudo
     passwd: $PWD_HASH
