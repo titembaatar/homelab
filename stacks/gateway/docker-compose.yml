@@ -9,6 +9,7 @@ services:
       - TZ=Europe/Paris
       - PUID=1000
       - PGID=1000
+      - CADDY_INGRESS_NETWORKS=caddy_net
     volumes:
       - caddy_data:/data
       - caddy_config:/config
@@ -23,20 +24,27 @@ services:
       - caddy_net
       - gateway_net
     deploy:
-      labels:
-        caddy_0: "*.titem.top"
-        caddy_0.tls.dns: "cloudflare {file./run/secrets/cloudflare-token}"
-        caddy_0.log.output: "file /var/log/caddy/access.log"
-        caddy_1.debug:
-        caddy_1.crowdsec.api_url: "http://crowdsec:8080"
-        caddy_1.crowdsec.api_key: "{file./run/secrets/crowdsec-api-key}"
-        caddy_1.crowdsec.ticker_interval: "15s"
-        caddy_2: (tinyauth_forwarder)
-        caddy_2.forward_auth: tinyauth:3000
-        caddy_2.forward_auth.uri: /api/auth/caddy
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
       placement:
         constraints:
           - node.role == manager
+      labels:
+        caddy_0.acme_dns: "cloudflare {file./run/secrets/cloudflare-token}"
+        caddy_0.email: "{file./run/secrets/cloudflare-email}"
+        caddy_1: "*.titem.top"
+        caddy_1.tls.dns: "cloudflare {file./run/secrets/cloudflare-token}"
+        caddy_1.tls.propagation_delay: 2m
+        caddy_1.tls.resolvers: 1.1.1.1
+        caddy_1.log.output: "file /var/log/caddy/access.log"
+        caddy_2: (tinyauth_forwarder)
+        caddy_2.forward_auth: tinyauth:3000
+        caddy_2.forward_auth.uri: /api/auth/caddy
+        caddy_3.debug:
+        caddy_3.crowdsec.api_url: "http://crowdsec:8080"
+        caddy_3.crowdsec.api_key: "{file./run/secrets/crowdsec-api-key}"
+        caddy_3.crowdsec.ticker_interval: "15s"
 
   tunnel:
     image: cloudflare/cloudflared:2025.4.2
@@ -51,7 +59,12 @@ services:
     secrets:
       - tunnel-token
     networks:
+      - caddy_net
       - gateway_net
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
 
   tinyauth:
     image: ghcr.io/steveiliop56/tinyauth:v3.3.1
@@ -78,6 +91,9 @@ services:
       - caddy_net
       - gateway_net
     deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
       labels:
         caddy: "tinyauth.titem.top"
         caddy.reverse_proxy: "{{upstreams 3000}}"
@@ -94,6 +110,10 @@ services:
       - caddy_logs:/var/log/caddy:ro
     networks:
       - gateway_net
+    deploy:
+      restart_policy:
+        condition: on-failure
+        max_attempts: 3
 
 volumes:
   caddy_data:
