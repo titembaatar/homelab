@@ -39,26 +39,23 @@ echo
 USER_DATA_FILE="/mnt/pve/moge_khatun/snippets/userconfig.yaml"
 cat << EOF > $USER_DATA_FILE
 #cloud-config
+keyboard:
+  layout: us
+locale: en_US.UTF-8
 timezone: Europe/Paris
 hostname: $VM_NAME
 users:
   - name: root
     passwd: $PWD_HASH
-    ssh_authorized_keys:
-      - $SSH_KEY
-    shell: /bin/zsh
-users:
   - name: $USER_NAME
     groups: sudo
     passwd: $PWD_HASH
     ssh_authorized_keys:
       - $SSH_KEY
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
-    shell: /bin/zsh
 package_update: true
 packages:
   - sudo
-  - zsh
   - qemu-guest-agent
 runcmd:
   - systemctl enable --now qemu-guest-agent
