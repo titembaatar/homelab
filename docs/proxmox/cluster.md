@@ -1,5 +1,4 @@
-# ⚙️ Proxmox VE Cluster Setup Guide
-
+# ⚙️ Proxmox VE Cluster
 This document outlines the steps to create the Proxmox VE cluster (`Khuleg Baatar`)
 and configure the necessary storage resources within the Datacenter view.
 

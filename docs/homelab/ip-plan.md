@@ -14,7 +14,6 @@
 * All devices configured with reservations **must** have their network interface set to obtain an IP address via **DHCP** within their respective operating systems.
 
 ## Reserved IP Addresses
-
 | Hostname     | Device/Role                | Reserved IP      | Notes                                       |
 | :----------- | :------------------------- | :--------------- | :------------------------------------------ |
 | **Infrastructure & Physical** |             |                  |                                             |
@@ -26,13 +25,9 @@
 | *(Future Host)*| Proxmox Host 5           | `10.0.0.14`      | *(Reserved)* |
 | `borte`      | Backup NAS                 | `10.0.0.19`      | Set Interface to DHCP                     |
 | **Docker Swarm Managers (`Unench Nokhod`)** | |                |                                             |
-| `subeedei`   | Swarm Manager 1 VM         | `10.0.0.20`      | VM Network set to DHCP                  |
-| `zev`        | Swarm Manager 2 VM         | `10.0.0.21`      | VM Network set to DHCP                  |
-| `khubilai`   | Swarm Manager 3 VM         | `10.0.0.22`      | VM Network set to DHCP                  |
-| **Docker Swarm Workers** |                    |                  |                                             |
-| `uriankhai`   | Swarm Worker 1 VM          | `10.0.0.30`     `| VM Network set to DHCP                  |
-| `besud`      | Swarm Worker 2 VM          | `10.0.0.31`      | VM Network set to DHCP                  |
-| `baarin`     | Swarm Worker 3 VM          | `10.0.0.32`      | VM Network set to DHCP                  |
+| `gateway`   | Docker Engine VM         | `10.0.0.20`      | VM Network set to DHCP                  |
+| `servarr`        | Docker Engine VM         | `10.0.0.21`      | VM Network set to DHCP                  |
+| `ger`   | Docker Engine VM         | `10.0.0.22`      | VM Network set to DHCP                  |
 | **Utility Services (Examples)** |             |                  |                                             |
 | `pihole`     | Pi-hole VM     | `10.0.0.53`      | VM Network set to DHCP |
 | `adguard`    | AdGuard Home VM | `10.0.0.54`      | VM Network set to DHCP |
@@ -42,7 +37,7 @@ While Pi-hole is widely known as a network-level ad-blocker, it also serves a cr
 * Pi-hole allows defining custom **Local DNS Records** via its web interface.
 * We map the easy-to-remember hostnames defined in the [Naming Convention](./naming-convention.md) to their corresponding static IP addresses.
     * Example Record 1: `mukhulai.lan` -> `10.0.0.10`
-    * Example Record 2: `subeedei.lan` -> `10.0.0.20`
+    * Example Record 2: `gateway.lan` -> `10.0.0.20`
 
 **Choosing a Domain Suffix:**
 * It is strongly recommended to use a private domain suffix like **`.lan`** or **`.internal`** for these local records.

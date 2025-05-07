@@ -1,7 +1,6 @@
 # 📥 Homelab Backup Strategy
 
 ## Philosophy
-
 Backup strategy to protect against various failure scenarios.  
 The goal is to ensure recoverability for critical configurations, persistent application data,
 and the underlying virtual infrastructure, balancing backup scope, storage space, and complexity.
@@ -40,9 +39,9 @@ This covers the critical persistent data stored on NFS shares hosted on ZFS data
     * Keep 2 Yearly Backups
     * Old backups for each dataset and frequency are automatically pruned by the script.
 * **Scope:** Configured via the `datasets:` list in `config.yml` to back up the following critical datasets:
-    * `flash/yesugen` (Application Config Files)
-    * `flash/yesui` (Docker Compose/Stack Files & Repo)
-    * `vault/khulan` (Databases)
+    * `flash/yesugen` (services config Files)
+    * `flash/yesui` (homelab Repo)
+    * `vault/khulan` (databases)
 * **Exclusions:** The large media dataset `vault/juerbiesu` is **intentionally excluded** from this backup routine as the data is considered non-critical or easily replaceable, and the storage requirements would be excessive.
 
 ### 3. Container Application Data
