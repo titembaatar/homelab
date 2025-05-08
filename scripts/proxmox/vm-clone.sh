@@ -61,6 +61,7 @@ $SSH_CMD cat /etc/hosts
 
 # Remove CloudInit
 qm set "$NEW_VM_ID" --delete ide2
+qm stop "$NEW_VM_ID"
 
 exit 0
 
