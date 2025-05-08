@@ -15,9 +15,7 @@ CLOUD_IMG="debian-12-genericcloud-amd64.iso"
 CLOUD_ISO_PATH="/mnt/pve/moge_khatun/template/iso/"
 
 USER_NAME="titem"
-USER_PASSWORD="SET_PASSWORD_HERE"
 SSH_KEY1=""
-HASH_PWD=$(mkpasswd --method=SHA-512 --rounds=4096 $USER_PASSWORD)
 
 USER_DATA_FILE="/mnt/pve/moge_khatun/snippets/userconfig.yaml"
 cat << EOF > $USER_DATA_FILE
