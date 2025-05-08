@@ -4,19 +4,12 @@ set -e
 VM_TEMPLATE_ID="9000"
 NEW_VM_ID=$1
 NAME=$2
-TARGET=$3
 HOST=$(hostname)
 CLONE_CMD="qm clone $VM_TEMPLATE_ID $NEW_VM_ID --full true "
 ARG_NAME="--name $NAME "
-ARG_TARGET="--target $TARGET "
 
 if [ "$NAME" != "" ]; then
   CLONE_CMD=$CLONE_CMD$ARG_NAME
-fi
-
-if [ "$TARGET" != "" ]; then
-  HOST=$TARGET
-  CLONE_CMD=$CLONE_CMD$ARG_TARGET
 fi
 
 # Clone VM
