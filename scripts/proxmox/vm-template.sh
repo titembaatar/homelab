@@ -4,37 +4,20 @@ set -e
 # Config
 VM_ID=9000
 VM_NAME="debian-template"
-STORAGE="moge_khatun"
-ISO_STORAGE="/mnt/pve/moge_khatun/template/iso/"
-MEMORY=4096
-CORES=2
-DISK_SIZE="16G"
-BRIDGE="vmbr0"
+VM_MEMORY=4096
+VM_CORES=2
+VM_DISK_SIZE="16G"
+VM_NET_BRIDGE="vmbr0"
+VM_STORAGE="moge_khatun"
+
 CLOUD_IMG_URL="https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2"
 CLOUD_IMG="debian-12-genericcloud-amd64.iso"
+CLOUD_ISO_PATH="/mnt/pve/moge_khatun/template/iso/"
+
 USER_NAME="titem"
-
-if ! command -v mkpasswd &> /dev/null; then
-  echo "mkpasswd not found. Install 'whois' package (apt install whois). Exiting."
-  exit 2
-fi
-
-echo -n "Enter password for user '$USER_NAME': "
-read -s USER_PASSWORD
-echo
-echo -n "Confirm password for user '$USER_NAME': "
-read -s CONFIRM_USER_PASSWORD
-echo
-if [ "$USER_PASSWORD" = "$CONFIRM_USER_PASSWORD" ]; then
-  PWD_HASH=$(mkpasswd --method=SHA-512 --rounds=4096 -s "$USER_PASSWORD")
-else
-  echo "Password doesn't match."
-  exit 2
-fi
-
-echo -n "Enter SSH key (cat ~/.ssh/id_ed25519.pub | wl-copy): "
-read SSH_KEY
-echo
+USER_PASSWORD="SET_PASSWORD_HERE"
+SSH_KEY1=""
+HASH_PWD=$(mkpasswd --method=SHA-512 --rounds=4096 $USER_PASSWORD)
 
 USER_DATA_FILE="/mnt/pve/moge_khatun/snippets/userconfig.yaml"
 cat << EOF > $USER_DATA_FILE
@@ -44,15 +27,16 @@ keyboard:
 locale: en_US.UTF-8
 timezone: Europe/Paris
 hostname: $VM_NAME
+preserve_hostname: true
 users:
   - name: root
-    passwd: $PWD_HASH
+    shell: /bin/bash
   - name: $USER_NAME
     groups: sudo
-    passwd: $PWD_HASH
     ssh_authorized_keys:
-      - $SSH_KEY
+      - $SSH_KEY1
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    shell: /bin/bash
 package_update: true
 packages:
   - sudo
@@ -72,9 +56,9 @@ if ! command -v qm &> /dev/null; then
   exit 1
 fi
 
-if [[ ! -f "$ISO_STORAGE$CLOUD_IMG" ]]; then
+if [[ ! -f "$CLOUD_ISO_PATH$CLOUD_IMG" ]]; then
   echo "Downloading Debian 12 cloud image..."
-  wget -O $ISO_STORAGE$CLOUD_IMG $CLOUD_IMG_URL || {
+  wget -O $CLOUD_ISO_PATH$CLOUD_IMG $CLOUD_IMG_URL || {
     echo "Failed to download cloud image. Exiting."
     exit 1
   }
@@ -83,12 +67,12 @@ fi
 echo "Creating VM $VM_ID ($VM_NAME)..."
 qm create $VM_ID \
   --name $VM_NAME \
-  --memory $MEMORY \
+  --memory $VM_MEMORY \
   --balloon 0 \
-  --cores $CORES \
+  --cores $VM_CORES \
   --cpu host \
   --numa 1 \
-  --net0 virtio,bridge=$BRIDGE \
+  --net0 virtio,bridge=$VM_NET_BRIDGE \
   --agent 1 \
   --ostype l26 || {
     echo "Failed to create VM. Exiting."
@@ -96,7 +80,7 @@ qm create $VM_ID \
   }
 
 echo "Importing cloud image to VM $VM_ID..."
-qm importdisk $VM_ID $ISO_STORAGE$CLOUD_IMG $STORAGE || {
+qm importdisk $VM_ID $CLOUD_ISO_PATH$CLOUD_IMG $VM_STORAGE || {
   echo "Failed to import disk. Exiting."
   exit 1
 }
@@ -104,35 +88,30 @@ qm importdisk $VM_ID $ISO_STORAGE$CLOUD_IMG $STORAGE || {
 echo "Configuring disk, cloud-init, and IP..."
 qm set $VM_ID \
   --scsihw virtio-scsi-pci \
-  --scsi0 "$STORAGE:$VM_ID/vm-$VM_ID-disk-0.raw,ssd=1" \
-  --ide2 $STORAGE:cloudinit \
+  --scsi0 "$VM_STORAGE:$VM_ID/vm-$VM_ID-disk-0.raw,ssd=1" \
+  --ide2 $VM_STORAGE:cloudinit \
   --boot c \
   --bootdisk scsi0 \
   --serial0 socket \
   --vga serial0 \
   --ipconfig0 ip=dhcp \
-  --cicustom "user=$STORAGE:snippets/userconfig.yaml" || {
+  --cicustom "user=$VM_STORAGE:snippets/userconfig.yaml" || {
     echo "Failed VM configuration. Exiting."
     exit 1
   }
 
-echo "Resizing disk to $DISK_SIZE..."
-qm disk resize $VM_ID scsi0 $DISK_SIZE || {
+echo "Resizing disk to $VM_DISK_SIZE..."
+qm disk resize $VM_ID scsi0 $VM_DISK_SIZE || {
   echo "Failed to resize disk. Exiting."
   exit 1
 }
 
 
-read -rp "Convert VM $VM_ID to a template? (y/n): " CONVERT
-if [[ $CONVERT == "y" ]]; then
-  echo "Converting VM $VM_ID to template..."
-  qm template $VM_ID || {
-    echo "Failed to convert to template. Exiting."
-    exit 1
-  }
-  echo "Template created successfully!"
-else
-  echo "VM $VM_ID created successfully! Not converted to template."
-fi
+echo "Converting VM $VM_ID to template..."
+qm template $VM_ID || {
+  echo "Failed to convert to template. Exiting."
+  exit 1
+}
+echo "Template created successfully!"
 
 exit 0
