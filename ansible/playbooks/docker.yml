@@ -1,0 +1,32 @@
+- name: Install Docker
+  hosts: docker
+  become: true
+  roles:
+    - install_docker
+    - install_lazydocker
+    - create_docker_net
+    - create_traefik_net
+
+- name: Deploy Gateway
+  hosts: gateway
+  become: true
+  roles:
+    - deploy_gateway
+
+- name: Install Traefik Kop
+  hosts: traefik_kop
+  become: true
+  roles:
+    - install_traefik_kop
+
+- name: Deploy Servarr
+  hosts: servarr
+  become: true
+  roles:
+   - deploy_servarr
+
+- name: Deploy Ger
+  hosts: ger
+  become: true
+  roles:
+   - deploy_ger
