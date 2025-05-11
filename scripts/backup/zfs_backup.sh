@@ -5,7 +5,7 @@ set -e
 SCHEDULE_TYPE=$1
 TIMESTAMP=$(date '+%y%m%d_%H%M%S')
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/config.yml"
+CONFIG_FILE="$SCRIPT_DIR/config.yaml"
 LOG_DIR=$(yq -r '.log_dir' "$CONFIG_FILE")
 LOG_FILE="${LOG_DIR}/${TIMESTAMP}_${SCHEDULE_TYPE}_backup.log"
 BACKUP_DIR=$(yq -r '.backup_dir' "$CONFIG_FILE")
