@@ -7,8 +7,11 @@
     name: "{{ item }}"
     state: present
   loop:
+    - apt-transport-https
     - ca-certificates
     - curl
+    - gnupg-agent
+    - software-properties-common
 
 - name: Add Docker GPG key
   apt_key:
