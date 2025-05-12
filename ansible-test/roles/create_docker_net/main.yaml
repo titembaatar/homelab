@@ -1,0 +1,9 @@
+vars:
+  docker_network_name: "{{ network_name | default(ansible_hostname + '_net') }}"
+
+tasks:
+  - name: Create Docker network
+    become: true
+    community.docker.docker_network:
+      name: "{{ docker_network_name }}"
+      state: present

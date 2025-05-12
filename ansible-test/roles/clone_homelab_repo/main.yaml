@@ -1,0 +1,11 @@
+vars:
+  repo: "https://github.com/titembaatar/homelab.git"
+  clone_path: "$HOME"
+
+tasks:
+  - name: Clone Homelab Repo
+    become: true
+    git:
+      repo: {{ repo }}
+      dest: {{ clone_path }}
+

@@ -1,0 +1,8 @@
+vars:
+  stack: "{{ stack }}"
+
+tasks:
+  - name: Deploy Stack
+    become: true
+    community.docker.docker_compose_v2:
+      project_src: "{{ stack }}"
