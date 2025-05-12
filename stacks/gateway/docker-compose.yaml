@@ -1,0 +1,112 @@
+name: gateway
+
+services:
+  traefik:
+    image: traefik:v3.4
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - 80:80
+      - 443:443
+    secrets:
+      - cf-token
+    env_file: .env
+    environment:
+      - CF_API_EMAIL=${CF_API_EMAIL}
+      - CF_DNS_API_TOKEN_FILE='/run/secrets/cf-token'
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./traefik:/etc/traefik:ro
+      - /mnt/yesugen/traefik/acme.json:/acme.json
+      - /mnt/yesugen/traefik/logs:/var/log/traefik
+    labels:
+      traefik.enable: true
+      traefik.http.routers.traefik.entrypoints: websecure
+      traefik.http.routers.traefik.rule: Host(`traefik.${DOMAIN}`)
+      traefik.http.routers.traefik.middlewares: tinyauth@file
+    networks:
+      - traefik_net
+
+  cloudflared:
+    image: cloudflare/cloudflared:2025.4.2
+    restart: unless-stopped
+    user: 1000:1000
+    depends_on:
+      - traefik
+    command: tunnel run
+    environment:
+      TUNNEL_TOKEN_FILE: /run/secrets/tunnel
+    networks:
+      - traefik_net
+
+
+  crowdsec:
+    image: crowdsecurity/crowdsec:v1.6.8
+    restart: unless-stopped
+    user: 1000:1000
+    depends_on:
+      - traefik
+    environment:
+      COLLECTIONS: crowdsecurity/traefik crowdsecurity/appsec-virtual-patching crowdsecurity/appsec-generic-rules
+      CUSTOM_HOSTNAME: crowdsec
+      GID: "${GID-1000}"
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ./crowdsec/acquis.yaml:/etc/crowdsec/acquis.yaml
+      - /mnt/yesugen/traefik/logs:/var/log/traefik:ro
+      - /mnt/yesugen/crowdsec/db:/var/lib/crowdsec/data
+      - /mnt/yesugen/crowdsec/config:/etc/crowdsec
+    labels:
+      traefik.enable: false
+    networks:
+      - traefik_net
+
+  tinyauth:
+    image: ghcr.io/steveiliop56/tinyauth:v3
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - 3000:3000
+    secrets:
+      - tinyauth-secret
+      - github-client
+    env_file: .env
+    environment:
+      - SECRET=/run/secrets/tinyauth-secret
+      - APP_URL=https://tinyauth.${DOMAIN}
+      - USERS_FILE=users_file
+      - GITHUB_CLIENT_ID=${GITHUB_CLIENT_ID}
+      - GITHUB_CLIENT_SECRET=/run/secrets/github-client
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=/run/secrets/google-client
+      - OAUTH_WHITELIST=${OAUTH_WHITELIST}
+    volumes:
+      - /mnt/yesugen/tinyauth/users/users_file:/tinyauth/users_file:ro
+    labels:
+      traefik.enable: true
+      traefik.http.routers.tinyauth.entrypoints: websecure
+      traefik.http.routers.tinyauth.rule: Host(`tinyauth.${DOMAIN}`)
+      traefik.http.routers.tinyauth.middlewares: tinyauth@file
+    networks:
+      - traefik_net
+
+networks:
+  traefik_net:
+    external: true
+
+secrets:
+  cf-token:
+    file: ./secrets/cf-token.secret
+  tinyauth-secret:
+    file: ./secrets/tinyauth.secret
+  github-client:
+    file: ./secrets/github-client.secret
+  google-client:
+    file: ./secrets/google-client.secret
+  tunnel:
+    file: ./secrets/tunnel.secret
+
