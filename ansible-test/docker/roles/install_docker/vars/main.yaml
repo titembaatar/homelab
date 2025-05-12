@@ -1,4 +1,0 @@
-docker_gpg_url: "https://download.docker.com/linux/debian/gpg"
-docker_apt_repo: "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian $(. /etc/os-release && echo \"$VERSION_CODENAME\") stable"
-docker_daemon_options:
-  storage-driver: "overlay2"
