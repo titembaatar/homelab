@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -e
 
 VM_TEMPLATE_ID="9000"
@@ -43,21 +43,20 @@ ff02::1   ip6-allnodes
 ff02::2   ip6-allrouters
 EOF
 
-$SSH_CMD mv /etc/hosts /etc/hosts.bak
+$SSH_CMD "mv /etc/hosts /etc/hosts.bak"
 $SCP_CMD
-$SSH_CMD mv /tmp/hosts.new /etc/hosts
+$SSH_CMD "mv /tmp/hosts.new /etc/hosts"
 rm -f /tmp/hosts.new
 
-$SSH_CMD hostnamectl set-hostname "$NAME"
-$SSH_CMD hostname "$NAME"
-$SSH_CMD echo "$NAME" > /etc/hostname
+$SSH_CMD "hostnamectl set-hostname '$NAME'"
+$SSH_CMD "echo '$NAME' | sudo tee /etc/hostname > /dev/null"
 
 echo "new hostname : "
-$SSH_CMD hostname
+$SSH_CMD "hostname"
 echo "/etc/hostname: "
-$SSH_CMD cat /etc/hostname
+$SSH_CMD "cat /etc/hostname"
 echo "/etc/hosts: "
-$SSH_CMD cat /etc/hosts
+$SSH_CMD "cat /etc/hosts"
 
 # Remove CloudInit
 qm set "$NEW_VM_ID" --delete ide2

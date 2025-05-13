@@ -21,7 +21,7 @@ backup_schedule:
 
 # What to backup - adjust these to your actual VMs/containers/datasets
 datasets:
-  - "vault/db"
+  - "vault/khulan"
   - "vault/nfs"
   - "flash/yesui"
   - "flash/yesugen"
