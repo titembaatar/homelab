@@ -1,0 +1,32 @@
+services:
+  caddy:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - 80:80
+      - 443:443
+    env_file: .env
+    environment:
+      CLOUDFLARE_EMAIL: ${CF_API_EMAIL}
+      ACME_AGREE: true
+    secrets:
+      - cf-token
+    volumes:
+      - /mnt/yesugen/caddy/config:/config
+      - /mnt/yesugen/caddy/data:/data
+      - /mnt/yesugen/caddy/logs:/var/log
+      - /mnt/yesugen/caddy/Caddyfile:/etc/caddy/Caddyfile
+    networks:
+      - caddy_net
+    labels:
+      caddy.tls.dns: "cloudflare {file./run/secrets/cf-token}"
+
+networks:
+  caddy_net:
+    external: true
+
+secrets:
+  cf-token:
+    file: ./secrets/cf-token
