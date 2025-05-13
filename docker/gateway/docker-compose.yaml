@@ -1,0 +1,43 @@
+name: gateway
+
+services:
+  tinyauth:
+    image: ghcr.io/steveiliop56/tinyauth:v3
+    restart: unless-stopped
+    secrets:
+      - tinyauth-secret
+      - github-client
+      - google-client
+    env_file: .env
+    environment:
+      APP_URL: "https://auth.${DOMAIN}"
+      APP_TITLE: "[auth]"
+      USERS_FILE: "/tinyauth/users_file"
+      OAUTH_WHITELIST: ${OAUTH_WHITELIST}
+      GITHUB_CLIENT_ID: ${GITHUB_CLIENT_ID}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      SECRET_FILE: "/run/secrets/tinyauth-secret"
+      GITHUB_CLIENT_SECRET_FILE: "/run/secrets/github-client"
+      GOOGLE_CLIENT_SECRET_FILE: "/run/secrets/google-client"
+    volumes:
+      - /mnt/yesugen/tinyauth/users/users_file:/tinyauth/users_file:ro
+    labels:
+      caddy_0: (tinyauth_forwarder)
+      caddy_0.forward_auth: tinyauth:3000
+      caddy_0.forward_auth.uri: /api/auth/caddy
+      caddy_1: "auth.${DOMAIN}"
+      caddy_1.reverse_proxy: "tinyauth:3000"
+    networks:
+      - caddy_net
+
+networks:
+  caddy_net:
+    external: true
+
+secrets:
+  tinyauth-secret:
+    file: ./secrets/tinyauth
+  github-client:
+    file: ./secrets/github-client
+  google-client:
+    file: ./secrets/google-client
