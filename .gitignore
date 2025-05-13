@@ -1,4 +1,4 @@
 .env
 *.env
-.secret
-*.secret
+docker/caddy/secrets/cf-token
+docker/gateway/secrets
