@@ -2,3 +2,4 @@
 *.env
 docker/caddy/secrets/cf-token
 docker/gateway/secrets
+docker/glance/secrets
