@@ -1,0 +1,273 @@
+name: servarr
+
+services:
+  qbit:
+    image: ghcr.io/hotio/qbittorrent:release-5.0.5
+    restart: unless-stopped
+    user: 1000:1000
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=1
+    ports:
+      - "6000:8080"
+    environment:
+      TZ: ${TZ}
+      UMASK: 002
+      VPN_ENABLED: true
+      VPN_CONF: "wg0"
+      VPN_PROVIDER: "proton"
+      VPN_LAN_NETWORK: "10.0.0.0/24"
+      VPN_LAN_LEAK_ENABLED: false
+      VPN_AUTO_PORT_FORWARD: true
+      VPN_HEALTHCHECK_ENABLED: true
+      VPN_KEEP_LOCAL_DNS: false
+      VPN_FIREWALL_TYPE: "auto"
+      PRIVOXY_ENABLED: false
+      UNBOUND_ENABLED: false
+    volumes:
+      - /mnt/yesugen/qbittorrent/config:/config
+      - /mnt/juerbiesu/torrents:/data
+    networks:
+      - servarr_net
+
+  nzbget:
+    image: ghcr.io/hotio/nzbget:release-25.0
+    restart: unless-stopped
+    user: 1000:1000
+    cap_add:
+      - NET_ADMIN
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv6.conf.all.disable_ipv6=1
+    ports:
+      - "6001:6789"
+    environment:
+      TZ: ${TZ}
+      UMASK: 002
+      VPN_ENABLED: true
+      VPN_CONF: "wg0"
+      VPN_PROVIDER: "proton"
+      VPN_LAN_NETWORK: "10.0.0.0/24"
+      VPN_AUTO_PORT_FORWARD: false
+      VPN_LAN_LEAK_ENABLED: false
+      VPN_HEALTHCHECK_ENABLED: true
+      VPN_KEEP_LOCAL_DNS: false
+      VPN_FIREWALL_TYPE: "auto"
+      PRIVOXY_ENABLED: false
+      UNBOUND_ENABLED: false
+    volumes:
+      - /mnt/yesugen/nzbget/config:/config
+      - /mnt/juerbiesu/usenet:/data
+    networks:
+      - servarr_net
+
+  gluetun:
+    image: qmcgaw/gluetun:v3.40.0
+    restart: unless-stopped
+    user: 1000:1000
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    ports:
+      - 8888:8888/tcp # HTTP proxy
+      - 8388:8388/tcp # Shadowsocks
+      - 8388:8388/udp # Shadowsocks
+      - "6002:5030"   #slskd
+    secrets:
+      - wireguard-private-key
+    environment:
+      TZ: ${TZ}
+      VPN_SERVICE_PROVIDER: ${VPN_SERVICE_PROVIDER}
+      VPN_TYPE: ${VPN_TYPE}
+      WIREGUARD_PRIVATE_KEY_SECRETFILE: /run/secrets/wireguard-private-key
+      SERVER_COUNTRIES: "France"
+    volumes:
+      - /mnt/yesugen/gluetun/config:/gluetun
+    networks:
+      - servarr_net
+
+  slskd:
+    image: slskd/slskd:0.22.5
+    restart: unless-stopped
+    depends_on:
+      - "gluetun"
+    user: 1000:1000
+    volumes:
+      - /mnt/yesugen/slskd:/app
+      - /mnt/juerbiesu:/data
+    network_mode: "service:gluetun"
+
+  prowlarr:
+    image: ghcr.io/hotio/prowlarr:release-1.35.1.5034
+    restart: unless-stopped
+    ports:
+      - "6100:9696"
+    environment:
+      TZ: ${TZ}
+      UMASK: 002
+    volumes:
+      - /mnt/yesugen/prowlarr/config:/config
+    networks:
+      - servarr_net
+
+  radarr:
+    image: ghcr.io/hotio/radarr:release-5.22.4.9896
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - "6101:7878"
+    environment:
+      TZ: ${TZ}
+      UMASK: 002
+    volumes:
+      - /mnt/juerbiesu:/data
+      - /mnt/yesugen/radarr/config:/config
+    networks:
+      - servarr_net
+
+  sonarr:
+    image: ghcr.io/hotio/sonarr:release-4.0.14.2939
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - "6102:8989"
+    environment:
+      TZ: ${TZ}
+      UMASK: 002
+    volumes:
+      - /mnt/juerbiesu:/data
+      - /mnt/yesugen/sonarr/config:/config
+    networks:
+      - servarr_net
+
+  lidarr:
+    image: ghcr.io/hotio/lidarr:release-2.11.2.4629
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - "6103:8686"
+    environment:
+      TZ: ${TZ}
+      UMASK: 002
+    volumes:
+      - /mnt/juerbiesu:/data
+      - /mnt/yesugen/lidarr/config:/config
+    networks:
+      - servarr_net
+
+  bazarr:
+    image: ghcr.io/hotio/bazarr:release-1.5.2
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - "6104:6767"
+    environment:
+      TZ: ${TZ}
+      UMASK: 002
+    volumes:
+      - /mnt/juerbiesu:/data
+      - /mnt/yesugen/bazarr/config:/config
+    networks:
+      - servarr_net
+
+  jellyseerr:
+    image: ghcr.io/hotio/jellyseerr:release-2.5.2
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - "6200:5055"
+    environment:
+      TZ: ${TZ}
+      UMASK: 002
+    volumes:
+      - /mnt/yesugen/jellyseerr/config:/config
+    networks:
+      - servarr_net
+      - caddy_net
+    labels:
+      caddy: "jellyseer.${DOMAIN}"
+      caddy.reverse_proxy: "{{upstreams 6200}}"
+      caddy.import: tinyauth_forwarder *
+
+  notifiarr:
+    image: golift/notifiarr:0.8
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - "6201:5454"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - /mnt/yesugen/notifiarr/config:/config
+      - /var/run/utmp:/var/run/utmp
+      - /etc/machine-id:/etc/machine-id
+    networks:
+      - servarr_net
+
+  tautulli:
+    image: ghcr.io/tautulli/tautulli:release-2.15.2
+    restart: unless-stopped
+    user: 1000:1000
+    ports:
+      - "6202:8181"
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - /mnt/yesugen/tautulli/config:/config
+    networks:
+      - servarr_net
+
+  defaulterr:
+    image: varthe/defaulterr:2.4.10
+    restart: always
+    user: 1000:1000
+    ports:
+      - "6300:3184"
+    environment:
+      TZ: ${TZ}
+      LOG_LEVEL: "info"
+    volumes:
+      - /mnt/yesugen/defaulterr/config:/config
+      - /mnt/yesugen/defaulterr/logs:/logs
+    networks:
+      - servarr_net
+
+  qbit_manage:
+    image: ghcr.io/stuffanthings/qbit_manage:v4.3.0
+    restart: unless-stopped
+    user: 1000:1000
+    environment:
+      TZ: ${TZ}
+    volumes:
+      - /mnt/yesugen/qbit_manage/config:/config:rw
+      - /mnt/juerbiesu/torrents:/data/torrents:rw
+      - /mnt/yesugen/qbittorrent:/qbittorent:ro
+      - /mnt/yesugen/qbittorrent/data/BT_backup:/BT_backup:ro
+    networks:
+      - servarr_net
+
+  soularr:
+    image: mrusse08/soularr:latest
+    restart: unless-stopped
+    user: 1000:1000
+    environment:
+      TZ: ${TZ}
+      SCRIPT_INTERVAL: 3600
+    volumes:
+      - /mnt/juerbiesu:/data
+      - /mnt/yesugen/soularr/config/config.ini:/data/config.ini
+    networks:
+      - servarr_net
+
+networks:
+  servarr_net:
+    external: true
+  caddy_net:
+    external: true
+
+secrets:
+  wireguard-private-key:
+    file: ../../secrets/wireguard-private-key
