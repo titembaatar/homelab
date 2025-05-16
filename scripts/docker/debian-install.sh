@@ -20,7 +20,7 @@ sudo usermod -aG docker titem
 # Lazydocker
 curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
 
-PATH_LINE="export PATH=$HOME/.local/bin:$PATH"
+PATH_LINE="export PATH=\$HOME/.local/bin:\$PATH"
 ALIAS_LINE="alias lzd=\"lazydocker\""
 
 if ! grep -qF "$PATH_LINE" "$HOME"/.bashrc; then
