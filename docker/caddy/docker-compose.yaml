@@ -19,11 +19,14 @@ services:
       - /mnt/yesugen/caddy/logs:/var/log
       - /mnt/yesugen/caddy/Caddyfile:/etc/caddy/Caddyfile
     networks:
+      - gateway_net
       - caddy_net
     labels:
       caddy.tls.dns: "cloudflare {file./run/secrets/cf-token}"
 
 networks:
+  gateway_net:
+    external: true
   caddy_net:
     external: true
 

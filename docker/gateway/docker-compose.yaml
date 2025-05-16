@@ -28,9 +28,12 @@ services:
       caddy_1: "auth.${DOMAIN}"
       caddy_1.reverse_proxy: "tinyauth:3000"
     networks:
+      - gateway_net
       - caddy_net
 
 networks:
+  gateway_net:
+    external: true
   caddy_net:
     external: true
 
