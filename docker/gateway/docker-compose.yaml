@@ -36,8 +36,8 @@ networks:
 
 secrets:
   tinyauth-secret:
-    file: ./secrets/tinyauth
+    file: ../../secrets/tinyauth
   github-client:
-    file: ./secrets/github-client
+    file: ../../secrets/github-client
   google-client:
-    file: ./secrets/google-client
+    file: ../../secrets/google-client

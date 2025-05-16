@@ -26,14 +26,14 @@ services:
 
 secrets:
   github-token:
-    file: ./secrets/github-token
+    file: ../../secrets/github-token
   immich-token:
-    file: ./secrets/immich-token
+    file: ../../secrets/immich-token
   jellyfin-token:
-    file: ./secrets/jellyfin-token
+    file: ../../secrets/jellyfin-token
   plex-token:
-    file: ./secrets/plex-token
+    file: ../../secrets/plex-token
   tautulli-token:
-    file: ./secrets/tautulli-token
+    file: ../../secrets/tautulli-token
   qbit-passwd:
-    file: ./secrets/qbit-passwd
+    file: ../../secrets/qbit-passwd

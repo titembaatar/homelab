@@ -29,4 +29,4 @@ networks:
 
 secrets:
   cf-token:
-    file: ./secrets/cf-token
+    file: ../../secrets/cf-token
