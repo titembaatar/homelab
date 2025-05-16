@@ -1,7 +1,9 @@
 services:
   glance:
-    image: glanceapp/glance:v0.8.1
+    image: glanceapp/glance:latest
     restart: unless-stopped
+    ports:
+      - 8081:8080
     secrets:
       - github-token
       - immich-token
@@ -10,13 +12,14 @@ services:
       - tautulli-token
       - qbit-passwd
     environment:
+      TZ: ${TZ}
       IP: ${IP}
-      JELLYFIN_URL: ${JELLYFIN_URL}
-      JELLYFIN_USER_ID: ${JELLYFIN_USER_ID}
+      CITY: ${CITY}
+      QBIT_USER: ${QBIT_USER}
       PLEX_URL: ${PLEX_URL}
       TAUTULLI_URL: ${TAUTULLI_URL}
-      QBIT_USER: ${QBIT_USER}
-      CITY: ${CITY}
+      JELLYFIN_URL: ${JELLYFIN_URL}
+      JELLYFIN_USER_ID: ${JELLYFIN_USER_ID}
     volumes:
       - /mnt/yesugen/glance/config:/app/config
       - /mnt/yesugen/glance/assets:/app/assets
