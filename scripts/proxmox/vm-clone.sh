@@ -4,6 +4,7 @@ set -e
 VM_TEMPLATE_ID="9000"
 NEW_VM_ID=$1
 NAME=$2
+TARGET=$3
 HOST=$(hostname)
 CLONE_CMD="qm clone $VM_TEMPLATE_ID $NEW_VM_ID --full true "
 ARG_NAME="--name $NAME "
@@ -26,12 +27,12 @@ echo
 pvesh create /nodes/"$HOST"/qemu/"$NEW_VM_ID"/status/start
 echo "Starting VM, waiting 30s..."
 for i in {01..30}; do
-  printf "$i "
+  printf '%s ' "$i"
   sleep 1
 done
 
 # Change VM hostname
-SSH_CMD="ssh -i $HOME/.ssh/mukhulai titem@$IP_ADDR sudo"
+SSH_CMD="ssh -i $HOME/.ssh/mukhulai titem@$IP_ADDR "
 SCP_CMD="scp -i $HOME/.ssh/mukhulai /tmp/hosts.new titem@$IP_ADDR:/tmp/hosts.new"
 
 cat << EOF > /tmp/hosts.new
@@ -43,24 +44,28 @@ ff02::1   ip6-allnodes
 ff02::2   ip6-allrouters
 EOF
 
-$SSH_CMD "mv /etc/hosts /etc/hosts.bak"
+$SSH_CMD "sudo mv /etc/hosts /etc/hosts.bak"
 $SCP_CMD
-$SSH_CMD "mv /tmp/hosts.new /etc/hosts"
+$SSH_CMD "sudo mv /tmp/hosts.new /etc/hosts"
 rm -f /tmp/hosts.new
 
-$SSH_CMD "hostnamectl set-hostname '$NAME'"
-$SSH_CMD "echo '$NAME' | sudo tee /etc/hostname > /dev/null"
+$SSH_CMD "sudo hostnamectl set-hostname '$NAME'"
+$SSH_CMD "sudo echo '$NAME' | sudo tee /etc/hostname > /dev/null"
 
 echo "new hostname : "
-$SSH_CMD "hostname"
+$SSH_CMD "sudo hostname"
 echo "/etc/hostname: "
-$SSH_CMD "cat /etc/hostname"
+$SSH_CMD "sudo cat /etc/hostname"
 echo "/etc/hosts: "
-$SSH_CMD "cat /etc/hosts"
+$SSH_CMD "sudo cat /etc/hosts"
 
 # Remove CloudInit
 qm set "$NEW_VM_ID" --delete ide2
 qm stop "$NEW_VM_ID"
+
+if [ -n "$3" ]; then
+  qm migrate "$NEW_VM_ID" "$3"
+fi
 
 exit 0
 
