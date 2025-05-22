@@ -6,7 +6,7 @@ MANAGER_IP=$2
 
 "$HOME"/homelab/scripts/docker/debian-install.sh
 
-docker swarm join --token "$WORKER_TOKEN" "$MANAGER_IP":2377
+sudo docker swarm join --token "$WORKER_TOKEN" "$MANAGER_IP":2377
 
 CADDY_NET=$(docker network list | grep 'caddy_net')
 

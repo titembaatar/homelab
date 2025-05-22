@@ -32,4 +32,4 @@ if ! grep -qF "$ALIAS_LINE" "$HOME"/.bashrc; then
 fi
 
 
-sudo su titem
+# sudo su titem

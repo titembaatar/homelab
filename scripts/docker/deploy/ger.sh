@@ -13,4 +13,5 @@ fi
 
 "$HOME"/homelab/scripts/docker/worker.sh "$WORKER_TOKEN" "$MANAGER_IP"
 
-docker compose -f "$HOME"/homelab/docker/ger/docker-compose.yaml up -d
+docker compose -f "$HOME"/homelab/docker/glance/docker-compose.yaml up -d
+docker compose -f "$HOME"/homelab/docker/immich/docker-compose.yaml up -d
