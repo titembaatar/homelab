@@ -147,6 +147,8 @@ if ! qm start "$NEW_VM_ID"; then
   echo "[WARN ] Failed to start VM"
 fi
 
+show_progress 5 "Waiting for VM to boot"
+
 if [[ -n "$TARGET" ]]; then
   echo "Migrating VM $NEW_VM_ID to $TARGET..."
   if ! qm migrate "$NEW_VM_ID" "$TARGET"; then
