@@ -128,11 +128,6 @@ if ! $SSH_CMD "sudo hostnamectl set-hostname '$NAME'"; then
   exit 1
 fi
 
-if ! $SSH_CMD "echo '$NAME' | sudo tee /etc/hostname > /dev/null"; then
-  echo "[ERROR] Failed to update /etc/hostname"
-  exit 1
-fi
-
 rm -f /tmp/hosts.new
 
 echo "Verifying configuration..."
