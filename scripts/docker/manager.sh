@@ -1,12 +1,27 @@
 #!/usr/bin/env bash
+# desc: Initialize Docker Swarm manager and create overlay network
 set -e
 
-"$HOME"/homelab/scripts/docker/debian-install.sh
+IP=$(ip route get 1.1.1.1 | awk '{print $7; exit}')
 
-IP=$(ip a | grep '10.0.0.' | awk '{print $2}' | cut -d '/' -f 1)
+if [[ -z "$IP" ]]; then
+  echo "Error: Could not determine IP address"
+  exit 1
+fi
 
-sudo docker swarm init --advertise-addr "$IP"
-sudo docker network create --driver overlay --attachable caddy_net
-sudo docker swarm join-token worker
+echo "Initializing Docker Swarm manager on $IP..."
+
+docker swarm init --advertise-addr "$IP"
+echo "Creating caddy_net overlay network..."
+docker network create --driver overlay --attachable caddy_net
+
 echo
-echo "Manager IP: '$IP'"
+echo "=== Swarm Manager Setup Complete ==="
+echo "Manager IP: $IP"
+echo
+echo "To join workers to this swarm, run on worker nodes:"
+docker swarm join-token worker
+
+echo
+echo "To join managers to this swarm, run on manager nodes:"
+docker swarm join-token manager

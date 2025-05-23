@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
+# desc: Join Docker Swarm as worker node
 set -e
 
-WORKER_TOKEN=$1
-MANAGER_IP=$2
+WORKER_TOKEN="$1"
+MANAGER_IP="$2"
 
-"$HOME"/homelab/scripts/docker/debian-install.sh
-
-sudo docker swarm join --token "$WORKER_TOKEN" "$MANAGER_IP":2377
-
-CADDY_NET=$(docker network list | grep 'caddy_net')
-
-if ! $CADDY_NET; then
-  echo "No 'caddy_net' network."
-  echo "Create 'caddy_net' network on swarm manager with:"
-  echo "  docker network create --driver overlay --attachable caddy_net"
-  echo "Exiting..."
-  exit 0
+if [[ -z "$WORKER_TOKEN" || -z "$MANAGER_IP" ]]; then
+  echo "Usage: $0 <worker_token> <manager_ip>"
+  exit 1
 fi
+
+echo "Joining Docker Swarm as worker..."
+
+docker swarm join --token "$WORKER_TOKEN" "$MANAGER_IP:2377"
+
+if ! docker network ls | grep -q caddy_net; then
+  echo "Warning: caddy_net network not found"
+  echo "This network should be created by the swarm manager"
+fi
+
+echo "Worker node successfully joined the swarm"
