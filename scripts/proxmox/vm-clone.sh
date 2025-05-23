@@ -143,6 +143,10 @@ if ! qm stop "$NEW_VM_ID"; then
   echo "[WARN ] Failed to stop VM"
 fi
 
+if ! qm start "$NEW_VM_ID"; then
+  echo "[WARN ] Failed to start VM"
+fi
+
 if [[ -n "$TARGET" ]]; then
   echo "Migrating VM $NEW_VM_ID to $TARGET..."
   if ! qm migrate "$NEW_VM_ID" "$TARGET"; then
@@ -152,6 +156,6 @@ if [[ -n "$TARGET" ]]; then
   echo "VM migrated to $TARGET successfully"
 fi
 
-echo "VM $NEW_VM_ID ($NAME) cloned and configured successfully!"
+echo "VM $NEW_VM_ID ($NAME) cloned, configured and started successfully!"
 
 exit 0
