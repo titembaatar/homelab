@@ -26,7 +26,7 @@ services:
       caddy_0.forward_auth: tinyauth:3000
       caddy_0.forward_auth.uri: /api/auth/caddy
       caddy_1: "auth.${DOMAIN}"
-      caddy_1.reverse_proxy: "tinyauth:3000"
+      caddy_1.reverse_proxy: "{{upstreams 3000}}"
     networks:
       - gateway_net
       - caddy_net
