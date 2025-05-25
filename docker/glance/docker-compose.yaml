@@ -7,24 +7,41 @@ services:
     secrets:
       - github-token
       - immich-token
+      - proxmox-token
       - jellyfin-token
       - plex-token
       - tautulli-token
+      - radarr-token
+      - sonarr-token
       - qbit-passwd
     environment:
       TZ: ${TZ}
       IP: ${IP}
       CITY: ${CITY}
       QBIT_USER: ${QBIT_USER}
+      PROXMOX_URL: ${PROXMOX_URL}
       PLEX_URL: ${PLEX_URL}
       TAUTULLI_URL: ${TAUTULLI_URL}
       JELLYFIN_URL: ${JELLYFIN_URL}
-      JELLYFIN_USER_ID: ${JELLYFIN_USER_ID}
+      RADARR_URL: ${RADARR_URL}
+      SONARR_URL: ${SONARR_URL}
     volumes:
       - /mnt/yesugen/glance/config:/app/config
       - /mnt/yesugen/glance/assets:/app/assets
+    networks:
+      - caddy_net
+    labels:
+      caddy: home.${DOMAIN}
+      caddy.reverse_proxy: "{{upstreams 8081}}"
+      caddy.import: tinyauth_forwarder *
+
+networks:
+  caddy_net:
+    external: true
 
 secrets:
+  proxmox-token:
+    file: ../../secrets/proxmox-token
   github-token:
     file: ../../secrets/github-token
   immich-token:
@@ -35,5 +52,9 @@ secrets:
     file: ../../secrets/plex-token
   tautulli-token:
     file: ../../secrets/tautulli-token
+  radarr-token:
+    file: ../../secrets/radarr-token
+  sonarr-token:
+    file: ../../secrets/sonarr-token
   qbit-passwd:
     file: ../../secrets/qbit-passwd
