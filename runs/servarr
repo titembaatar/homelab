@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+# desc: Deploy complete servarr stack (VM + Docker Worker + *arr Services)
+set -e
+
+VM_ID="121"
+VM_NAME="servarr"
+TARGET_NODE="borchi"
+USER_NAME="titem"
+
+MANAGER_IP="$1"
+WORKER_TOKEN="$2"
+
+if [[ -z "$WORKER_TOKEN" || -z "$MANAGER_IP" ]]; then
+  echo "Usage: $0 <manager_ip> <worker_token>"
+  exit 1
+fi
+
+echo "Step 1/4: Creating VM from template..."
+homelab mukhulai scripts/proxmox/vm-clone.sh "$VM_ID" "$VM_NAME" "$TARGET_NODE"
+
+echo "Step 2/4: Installing Docker..."
+homelab "$VM_NAME" scripts/docker/install.sh "$USER_NAME"
+
+echo "Step 3/4: Joining Docker Swarm as worker..."
+homelab "$VM_NAME" scripts/docker/worker.sh "$WORKER_TOKEN" "$MANAGER_IP"
+
+echo "Step 4/4: Setting up homelab directory and deploying Servarr services..."
+rsync -az --delete \
+  --exclude='.git' \
+  "$HOME/projects/homelab/" "$VM_NAME:/home/$USER_NAME/homelab/"
+ssh "$VM_NAME" "
+  chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/homelab
+  cd /home/$USER_NAME/homelab
+  docker network create servarr_net
+  docker compose -f docker/servarr/docker-compose.yaml up -d
+"
+
+echo "Servarr services are now running on $VM_NAME"

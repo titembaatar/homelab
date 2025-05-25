@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# desc: Deploy complete gateway stack (VM + Docker Swarm Manager + Services)
+set -e
+
+VM_ID="120"
+VM_NAME="gateway"
+TARGET_NODE="borokhul"
+USER_NAME="titem"
+
+echo "Step 1/4: Creating VM from template..."
+homelab mukhulai scripts/proxmox/vm-clone.sh "$VM_ID" "$VM_NAME" "$TARGET_NODE"
+
+echo "Step 2/4: Installing Docker..."
+homelab "$VM_NAME" scripts/docker/install.sh "$USER_NAME"
+
+echo "Step 3/4: Setting up Docker Swarm Manager..."
+homelab "$VM_NAME" scripts/docker/manager.sh
+
+echo "Step 4/4: Setting up homelab dir and deplying Gateway..."
+rsync -az --delete \
+  --exclude='.git' \
+  "$HOME/projects/homelab/" "$VM_NAME:/home/$USER_NAME/homelab/"
+ssh "$VM_NAME" "
+  chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/homelab
+  cd /home/$USER_NAME/homelab
+  docker compose -f docker/caddy/docker-compose.yaml up -d
+  docker compose -f docker/gateway/docker-compose.yaml up -d
+"
+
+echo "Gateway services are now running on $VM_NAME"
