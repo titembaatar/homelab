@@ -1,101 +1,94 @@
 # 🐋 Setup Docker VMs
-These scripts facilitate the setup and management of my homelab environment.
 
-## Script Components & Usage
-### Docker Installation (`scripts/docker/debian-install.sh`)
-* **Purpose:** Installs Docker Engine and related tools on Debian-based systems.
-* **Features:**
-    * Installs Docker CE, CLI, Containerd, and compose plugin
-    * Adds the current user to the docker group
-    * Installs Lazydocker for container management
-    * Configures PATH and aliases
+## Overview
+The system consists of three main VMs running Docker services:
 
-### Swarm Manager Setup (`scripts/docker/manager.sh`)
-* **Purpose:** Initializes a Docker Swarm manager node to use an overlay network
-* **Features:**
-    * Automatically detects the node's IP address
-    * Initializes a new Docker Swarm
-    * Creates the `caddy_net` overlay network
-    * Displays the worker join token
+- **Gateway** (`gateway`) - Caddy reverse proxy and Tinyauth authentication
+- **Servarr** (`servarr`) - Media automation stack (*arr services, qBittorrent, etc.)
+- **Ger** (`ger`) - General services (Immich, Glance dashboard, etc.)
 
-### Swarm Worker Setup (`scripts/docker/worker.sh`)
-* **Purpose:** Joins a node to an existing Docker Swarm as a worker to use overlay network.
-* **Parameters:**
-    * `WORKER_TOKEN`: Token from the manager node
-    * `MANAGER_IP`: IP address of a manager node
-* **Features:**
-    * Installs Docker (by calling `debian-install.sh`)
-    * Joins the node to the Swarm as a worker
-    * Verifies the `caddy_net` network exists
-* **Example Usage:**
-    ```bash
-    bash /path/to/worker.sh "SWMTKN-1-xxxxxxxxxxxx" "10.0.0.30"
-    ```
+## Deployment Architecture
+### Docker Swarm Network
+The deployment uses Docker Swarm with overlay networks to enable service communication across VMs:
+- **Manager Node**: `gateway` VM initializes the swarm and creates overlay networks
+- **Worker Nodes**: `servarr` and `ger` VMs join as workers
+- **Overlay Networks**: `caddy_net` for reverse proxy, `servarr_net` for media services
 
-### Gateway Deployment (`scripts/docker/deploy/gateway.sh`)
-* **Purpose:** Sets up the primary gateway services on a manager node.
-* **Features:**
-    * Installs Docker (via `debian-install.sh`)
-    * Initializes a Swarm manager (via `manager.sh`)
-    * Deploys Caddy reverse proxy
-    * Deploys gateway services
+## Deployment System
+### The `homelab` CLI Tool
+The repository includes a CLI tool (`runs/homelab`) that automates remote script execution:
 
-### Service Deployment Scripts (`scripts/docker/deploy/{ger.sh,servarr.sh}`)
-* **Purpose:** Deploy specific service stacks on worker nodes.
-* **Parameters:**
-    * `WORKER_TOKEN`: Token from the manager node
-    * `MANAGER_IP`: IP address of a manager node
-* **Available Scripts:**
-    * `ger.sh`: Deploys the `ger` stack
-    * `servarr.sh`: Deploys `*arr` stack
-* **Example Usage:**
-    ```bash
-    bash /path/to/servarr.sh "SWMTKN-1-xxxxxxxxxxxx" "10.0.0.30"
-    ```
-
-## Script Dependencies
-The scripts follow a hierarchical structure with dependencies:
-```
-debian-install.sh    # Docker installation (independent)
-  |
-manager.sh           # Swarm manager setup (depends on Docker)
-  |                    |
-  |                    |---- gateway.sh  # Gateway deployment
-  |
-worker.sh            # Swarm worker setup (depends on Docker & manager)
-  |
-  |---- ger.sh       # Service stack deployment
-  |---- servarr.sh   # Media services deployment
-```
-
-## Homelab Deployment Workflow
-### `gateway` VM :
+**Installation:**
 ```bash
-sudo apt-get update
-sudo apt-get install git
-cd $HOME
-git clone https://github.com/titembaatar/homelab.git
-$HOME/homelab/scripts/deploy/gateway.sh
+$HOME/personal/homelab/runs/install.sh
 ```
 
-> [!INFO]
->
-> Keep the docker worker join token and manager IP
-
-### `servarr` VM :
+**Usage:**
 ```bash
-sudo apt-get update
-sudo apt-get install git
-cd $HOME
-git clone https://github.com/titembaatar/homelab.git
-$HOME/homelab/scripts/deploy/servarr.sh <worker-join-token> <manager-ip>
+homelab <target_host> <script_path> [args...]
+homelab -s  # List available scripts
+homelab -l  # List SSH hosts
 ```
 
-### `ger` VM :
+### Stack Deployment
+#### Scripts
+Located in `runs/` directory, these scripts handle full VM lifecycle:
+
+**Gateway Deployment (`runs/gateway`):**
 ```bash
-sudo apt-get update
-sudo apt-get install git
-cd $HOME
-git clone https://github.com/titembaatar/homelab.git
-$HOME/homelab/scripts/deploy/ger.sh <worker-join-token> <manager-ip>
+runs/gateway
 ```
+- Creates `gateway` VM on `borokhul` node
+- Installs Docker and initializes Swarm manager
+- Deploys Caddy reverse proxy and Tinyauth
+
+**Servarr Deployment (`runs/servarr`):**
+```bash
+runs/servarr <manager_ip> <worker_token>
+```
+- Creates `servarr` VM on `borchi` node
+- Joins Docker Swarm as worker
+- Deploys complete *arr media stack
+
+**Ger Deployment (`runs/ger`):**
+```bash
+runs/ger <manager_ip> <worker_token>
+```
+- Creates `ger` VM on `mukhulai` node
+- Joins Docker Swarm as worker
+- Deploys Immich and Glance services
+
+## Prerequisites
+### SSH Configuration
+Ensure SSH keys and host configurations are set up:
+```bash
+# Example ~/.ssh/config entries
+Host mukhulai
+    HostName 10.0.0.10
+    User titem
+
+Host gateway
+    HostName 10.0.0.20
+    User titem
+
+Host servarr
+    HostName 10.0.0.21
+    User titem
+
+Host ger
+    HostName 10.0.0.22
+    User titem
+```
+
+### VM Template
+Create the base VM template first:
+```bash
+homelab mukhulai scripts/proxmox/vm_template.sh
+```
+
+### Storage Requirements
+Ensure NFS shares are mounted on VMs:
+- `/mnt/yesugen` - Configuration files
+- `/mnt/juerbiesu` - Media storage
+- `/mnt/khulan` - Database storage
+
