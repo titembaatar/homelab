@@ -4,7 +4,8 @@
 ```
 vault/
 ├── juerbiesu/ # Media storage
-└── khulan/    # Database storage
+├── khulan/    # Database storage
+└── nfs/       # House shared files
 ```
 
 ## ZFS Pool Flash
