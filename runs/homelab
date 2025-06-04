@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-HOMELAB_ROOT="$HOME/projects/homelab"
+homelab_dir="$HOME/projects/homelab"
 
 show_help() {
   cat << EOF
@@ -14,30 +14,17 @@ Options:
   -d, --dry-run       Show what would be executed without running
   -l, --list-hosts    List available SSH hosts from config
   -s, --list-scripts  List available scripts
-
-Examples:
-  homelab mukhulai scripts/proxmox/vm-template.sh
-  homelab gateway scripts/docker/deploy/gateway.sh
-  homelab -d mukhulai scripts/proxmox/vm-clone.sh 120 gateway
-
-Available Hosts (from ~/.ssh/config):
-$(grep "^Host " ~/.ssh/config 2>/dev/null | grep -v "\*" | awk '{print "  " $2}' | sort || echo "  No SSH hosts configured")
-
-Script Categories:
-  scripts/proxmox/        - Proxmox VE management
-  scripts/docker/         - Docker setup and management
-  scripts/docker/deploy/  - Service deployment
 EOF
 }
 
 list_scripts() {
   echo -e "Available Scripts:"
-  find "$HOMELAB_ROOT/scripts" -name "*.sh" -type f | sort | while read -r script; do
-  local rel_path="${script#"$HOMELAB_ROOT"/}"
+  find "$homelab_dir/scripts" -name "*.sh" -type f | sort | while read -r script; do
+  local rel_path="${script#"$homelab_dir"/}"
   local description=""
 
   if [[ -f "$script" ]]; then
-      description=$(grep "^# desc:" "$script" | head -1 | sed 's/^# desc:[[:space:]]*//' || echo "")
+    description=$(grep "^# desc:" "$script" | head -1 | sed 's/^# desc:[[:space:]]*//' || echo "")
   fi
 
   if [[ -n "$description" ]]; then
@@ -73,7 +60,7 @@ execute_remote() {
 
   local script_name
   script_name=$(basename "$script_path")
-  local full_script_path="$HOMELAB_ROOT/$script_path"
+  local full_script_path="$homelab_dir/$script_path"
 
   if [[ ! -f "$full_script_path" ]]; then
     echo -e "[ERROR] Script not found: $script_path"
@@ -99,7 +86,7 @@ execute_remote() {
     --exclude='secrets' \
     --exclude='*.env' \
     --exclude='.env*' \
-    "$HOMELAB_ROOT/" "$target_host:$remote_temp/"
+    "$homelab_dir/" "$target_host:$remote_temp/"
 
   ssh "$target_host" "chmod +x $remote_temp/$script_path"
 
@@ -121,7 +108,7 @@ execute_remote() {
   fi
 }
 
-DRY_RUN=false
+dry_run=false
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -130,7 +117,7 @@ while [[ $# -gt 0 ]]; do
       exit 0
       ;;
     -d|--dry-run)
-      DRY_RUN=true
+      dry_run=true
       shift
       ;;
     -l|--list-hosts)
@@ -159,21 +146,21 @@ if [[ $# -lt 2 ]]; then
   exit 1
 fi
 
-TARGET_HOST="$1"
-SCRIPT_PATH="$2"
+target="$1"
+script="$2"
 shift 2
-SCRIPT_ARGS="$*"
+arguments="$*"
 
-if [[ "$DRY_RUN" == "true" ]]; then
+if [[ "$dry_run" == "true" ]]; then
   echo -e "DRY RUN MODE"
-  echo -e "Would execute: $SCRIPT_PATH on $TARGET_HOST"
-  if [[ -n "$SCRIPT_ARGS" ]]; then
-    echo -e "With arguments: $SCRIPT_ARGS"
+  echo -e "Would execute: $script on $target"
+  if [[ -n "$arguments" ]]; then
+    echo -e "With arguments: $arguments"
   fi
   echo ""
   echo -e "Script content preview:"
-  head -20 "$HOMELAB_ROOT/$SCRIPT_PATH" 2>/dev/null || echo "Script not found: $SCRIPT_PATH"
+  head -20 "$homelab_dir/$script" 2>/dev/null || echo "Script not found: $script"
   exit 0
 fi
 
-execute_remote "$TARGET_HOST" "$SCRIPT_PATH" "$SCRIPT_ARGS"
+execute_remote "$target" "$script" "$arguments"

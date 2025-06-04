@@ -2,11 +2,11 @@
 # desc: Clones a VM from template and configures hostname/network
 set -e
 
-VM_TEMPLATE_ID="9000"
-NEW_VM_ID=$1
-NAME=$2
-TARGET=$3
-HOST=$(hostname)
+vm_template_id="9000"
+new_vm_id=$1
+name=$2
+target=$3
+host=$(hostname)
 
 show_progress() {
   local duration=$1
@@ -38,8 +38,8 @@ show_progress() {
   printf "\r%s\n[%s] Complete!     \n" "$message" "$(printf "%${bar_length}s" | tr ' ' '=')"
 }
 
-SSH_KEY_PATH="$HOME/.ssh/mukhulai.pub"
-SSH_USER="titem"
+ssh_key_path="$HOME/.ssh/mukhulai.pub"
+ssh_user="titem"
 
 if [[ $# -lt 2 ]]; then
   echo "Usage: $0 <new_vm_id> <name> [target_host]"
@@ -51,33 +51,33 @@ if ! command -v qm &> /dev/null; then
   exit 1
 fi
 
-if ! qm status "$VM_TEMPLATE_ID" >/dev/null 2>&1; then
-  echo "[ERROR] Template VM $VM_TEMPLATE_ID not found"
+if ! qm status "$vm_template_id" >/dev/null 2>&1; then
+  echo "[ERROR] Template VM $vm_template_id not found"
   exit 1
 fi
 
-if [[ ! -f "$SSH_KEY_PATH" ]]; then
-  echo "[ERROR] SSH key not found at $SSH_KEY_PATH"
+if [[ ! -f "$ssh_key_path" ]]; then
+  echo "[ERROR] SSH key not found at $ssh_key_path"
   echo "Run vm-template.sh first to generate required SSH keys"
   exit 1
 fi
 
-echo "Cloning VM $VM_TEMPLATE_ID to $NEW_VM_ID ($NAME)..."
+echo "Cloning VM $vm_template_id to $new_vm_id ($name)..."
 
-CLONE_CMD="qm clone $VM_TEMPLATE_ID $NEW_VM_ID --full true --name $NAME"
-if ! $CLONE_CMD; then
+clone_cmd="qm clone $vm_template_id $new_vm_id --full true --name $name"
+if ! $clone_cmd; then
   echo "[ERROR] Failed to clone VM"
   exit 1
 fi
 
-MAC_ADDRESS=$(grep 'net0:' "/etc/pve/nodes/$HOST/qemu-server/$NEW_VM_ID.conf" | awk '{print $2}' | sed 's/virtio=\([^,]*\),bridge=.*/\1/')
+mac_address=$(grep 'net0:' "/etc/pve/nodes/$host/qemu-server/$new_vm_id.conf" | awk '{print $2}' | sed 's/virtio=\([^,]*\),bridge=.*/\1/')
 
-if [[ -z "$MAC_ADDRESS" ]]; then
+if [[ -z "$mac_address" ]]; then
   echo "[ERROR] Could not extract MAC address from VM config"
   exit 1
 fi
 
-echo "VM '$NEW_VM_ID' ('$NAME') MAC address: $MAC_ADDRESS"
+echo "VM '$new_vm_id' ('$name') MAC address: $mac_address"
 echo -n "Enter the IP address you assigned: "
 read -r IP_ADDR
 
@@ -86,44 +86,44 @@ if [[ ! "$IP_ADDR" =~ ^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$ ]]; then
   exit 1
 fi
 
-echo "Starting VM $NEW_VM_ID..."
-if ! pvesh create "/nodes/$HOST/qemu/$NEW_VM_ID/status/start"; then
+echo "Starting VM $new_vm_id..."
+if ! pvesh create "/nodes/$host/qemu/$new_vm_id/status/start"; then
   echo "[ERROR] Failed to start VM"
   exit 1
 fi
 
 show_progress 30 "Waiting for VM to boot"
 
-SSH_CMD="ssh -i $SSH_KEY_PATH -o StrictHostKeyChecking=no -o ConnectTimeout=10 $SSH_USER@$IP_ADDR"
-SCP_CMD="scp -i $SSH_KEY_PATH -o StrictHostKeyChecking=no -o ConnectTimeout=10"
+ssh_cmd="ssh -i $ssh_key_path -o StrictHostKeyChecking=no -o ConnectTimeout=10 $ssh_user@$IP_ADDR"
+scp_cmd="scp -i $ssh_key_path -o StrictHostKeyChecking=no -o ConnectTimeout=10"
 
 echo "Configuring hostname and network..."
 
 cat << EOF > /tmp/hosts.new
 127.0.0.1 localhost
-$IP_ADDR  $NAME.lan $NAME
+$IP_ADDR  $name.lan $name
 
 ::1       localhost ip6-localhost ip6-loopback
 ff02::1   ip6-allnodes
 ff02::2   ip6-allrouters
 EOF
 
-if ! $SSH_CMD "sudo mv /etc/hosts /etc/hosts.bak"; then
+if ! $ssh_cmd "sudo mv /etc/hosts /etc/hosts.bak"; then
   echo "[ERROR] Failed to backup /etc/hosts"
   exit 1
 fi
 
-if ! $SCP_CMD /tmp/hosts.new "$SSH_USER@$IP_ADDR:/tmp/hosts.new"; then
+if ! $scp_cmd /tmp/hosts.new "$ssh_user@$IP_ADDR:/tmp/hosts.new"; then
   echo "[ERROR] Failed to copy hosts file"
   exit 1
 fi
 
-if ! $SSH_CMD "sudo mv /tmp/hosts.new /etc/hosts"; then
+if ! $ssh_cmd "sudo mv /tmp/hosts.new /etc/hosts"; then
   echo "[ERROR] Failed to update /etc/hosts"
   exit 1
 fi
 
-if ! $SSH_CMD "sudo hostnamectl set-hostname '$NAME'"; then
+if ! $ssh_cmd "sudo hostnamectl set-hostname '$name'"; then
   echo "[ERROR] Failed to set hostname"
   exit 1
 fi
@@ -131,33 +131,33 @@ fi
 rm -f /tmp/hosts.new
 
 echo "Verifying configuration..."
-echo "Hostname: $($SSH_CMD "hostname" 2>/dev/null || echo "Failed to get hostname")"
-echo "/etc/hostname: $($SSH_CMD "cat /etc/hostname" 2>/dev/null || echo "Failed to read /etc/hostname")"
+echo "Hostname: $($ssh_cmd "hostname" 2>/dev/null || echo "Failed to get hostname")"
+echo "/etc/hostname: $($ssh_cmd "cat /etc/hostname" 2>/dev/null || echo "Failed to read /etc/hostname")"
 
 echo "Removing cloud-init configuration..."
-if ! qm set "$NEW_VM_ID" --delete ide2; then
+if ! qm set "$new_vm_id" --delete ide2; then
   echo "[WARN ] Failed to remove cloud-init drive"
 fi
 
-if ! qm stop "$NEW_VM_ID"; then
+if ! qm stop "$new_vm_id"; then
   echo "[WARN ] Failed to stop VM"
 fi
 
-if ! qm start "$NEW_VM_ID"; then
+if ! qm start "$new_vm_id"; then
   echo "[WARN ] Failed to start VM"
 fi
 
 show_progress 5 "Waiting for VM to boot"
 
-if [[ -n "$TARGET" ]]; then
-  echo "Migrating VM $NEW_VM_ID to $TARGET..."
-  if ! qm migrate "$NEW_VM_ID" "$TARGET"; then
-    echo "[ERROR] Failed to migrate VM to $TARGET"
+if [[ -n "$target" ]]; then
+  echo "Migrating VM $new_vm_id to $target..."
+  if ! qm migrate "$new_vm_id" "$target"; then
+    echo "[ERROR] Failed to migrate VM to $target"
     exit 1
   fi
-  echo "VM migrated to $TARGET successfully"
+  echo "VM migrated to $target successfully"
 fi
 
-echo "VM $NEW_VM_ID ($NAME) cloned, configured and started successfully!"
+echo "VM $new_vm_id ($name) cloned, configured and started successfully!"
 
 exit 0

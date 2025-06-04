@@ -2,29 +2,30 @@
 # desc: Deploy complete gateway stack (VM + Docker Swarm Manager + Services)
 set -e
 
-VM_ID="120"
-VM_NAME="gateway"
-TARGET_NODE="borokhul"
-USER_NAME="titem"
+homelab_dir="$HOME/personal/homelab"
+vm_id="120"
+vm_name="gateway"
+target_node="borokhul"
+username="titem"
 
 echo "Step 1/4: Creating VM from template..."
-homelab mukhulai scripts/proxmox/vm-clone.sh "$VM_ID" "$VM_NAME" "$TARGET_NODE"
+homelab mukhulai scripts/proxmox/vm-clone.sh "$vm_id" "$vm_name" "$target_node"
 
 echo "Step 2/4: Installing Docker..."
-homelab "$VM_NAME" scripts/docker/install.sh "$USER_NAME"
+homelab "$vm_name" scripts/docker/install.sh "$username"
 
 echo "Step 3/4: Setting up Docker Swarm Manager..."
-homelab "$VM_NAME" scripts/docker/manager.sh
+homelab "$vm_name" scripts/docker/manager.sh
 
 echo "Step 4/4: Setting up homelab dir and deplying Gateway..."
 rsync -az --delete \
   --exclude='.git' \
-  "$HOME/projects/homelab/" "$VM_NAME:/home/$USER_NAME/homelab/"
-ssh "$VM_NAME" "
-  chown -R $USER_NAME:$USER_NAME /home/$USER_NAME/homelab
-  cd /home/$USER_NAME/homelab
+  $homelab_dir "$vm_name:/home/$username/homelab/"
+ssh "$vm_name" "
+  chown -R $username:$username /home/$username/homelab
+  cd /home/$username/homelab
   docker compose -f docker/caddy/docker-compose.yaml up -d
   docker compose -f docker/gateway/docker-compose.yaml up -d
 "
 
-echo "Gateway services are now running on $VM_NAME"
+echo "Gateway services are now running on $vm_name"

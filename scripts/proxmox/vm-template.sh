@@ -2,39 +2,39 @@
 # desc: Creates a VM template on Proxmox using Debian cloud image with SSH key setup
 set -e
 
-VM_ID=9000
-VM_NAME="debian-template"
-VM_MEMORY=4096
-VM_CORES=2
-VM_DISK_SIZE="16G"
-VM_NET_BRIDGE="vmbr0"
-VM_STORAGE="moge_khatun"
-USER_NAME="titem"
+vm_id=9000
+vm_name="debian-template"
+vm_memory=4096
+vm_cores=2
+vm_disk_size="16G"
+vm_net_bridge="vmbr0"
+vm_storage="moge_khatun"
+username="titem"
 
-CLOUD_IMG_URL="https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2"
-CLOUD_IMG="debian-12-genericcloud-amd64.iso"
-CLOUD_ISO_PATH="/mnt/pve/moge_khatun/template/iso/"
-USER_DATA_FILE="/mnt/pve/moge_khatun/snippets/userconfig.yaml"
+cloud_img_url="https://cloud.debian.org/images/cloud/bookworm/latest/debian-12-generic-amd64.qcow2"
+cloud_img="debian-12-genericcloud-amd64.iso"
+cloud_iso="/mnt/pve/moge_khatun/template/iso/"
+user_data="/mnt/pve/moge_khatun/snippets/userconfig.yaml"
 
-CHINGIS_SSH_KEY_PATH="$HOME/.ssh/chingis.pub"
-MUKHULAI_SSH_KEY_PATH="/root/.ssh/mukhulai.pub"
+chingis_ssh_key_path="$HOME/.ssh/chingis.pub"
+mukhulai_ssh_key_path="/root/.ssh/mukhulai.pub"
 
 usage() {
   cat << EOF
 Usage: $0 [OPTIONS]
 
 Options:
-  -i, --vm-id ID          VM ID (default: $VM_ID)
-  -n, --name NAME         VM name (default: $VM_NAME)
-  -u, --user USER         Default user (default: $USER_NAME)
-  -k, --ssh-key PATH      Path to main machine SSH public key (default: $CHINGIS_SSH_KEY_PATH)
+  -i, --vm-id ID          VM ID (default: $vm_id)
+  -n, --name NAME         VM name (default: $vm_name)
+  -u, --user USER         Default user (default: $username)
+  -k, --ssh-key PATH      Path to main machine SSH public key (default: $chingis_ssh_key_path)
   -h, --help              Show this help message
 EOF
   exit 0
 }
 
 ensure_mukhulai_ssh_key() {
-  local key_path="$MUKHULAI_SSH_KEY_PATH"
+  local key_path="$mukhulai_ssh_key_path"
   local private_key="${key_path%.pub}"
 
   if [[ ! -f "$key_path" ]]; then
@@ -46,7 +46,7 @@ ensure_mukhulai_ssh_key() {
 }
 
 read_mukhulai_ssh_key() {
-  local key_path="$MUKHULAI_SSH_KEY_PATH"
+  local key_path="$mukhulai_ssh_key_path"
 
   if [[ ! -f "$key_path" ]]; then
     echo "[ERROR] Mukhulai SSH key not found at $key_path"
@@ -69,19 +69,19 @@ validate_chingis_ssh_key() {
 while [[ $# -gt 0 ]]; do
   case $1 in
     -i|--vm-id)
-      VM_ID="$2"
+      vm_id="$2"
       shift 2
       ;;
     -n|--name)
-      VM_NAME="$2"
+      vm_name="$2"
       shift 2
       ;;
     -u|--user)
-      USER_NAME="$2"
+      username="$2"
       shift 2
       ;;
     -k|--ssh-key)
-      CHINGIS_SSH_KEY_PATH="$2"
+      chingis_ssh_key_path="$2"
       shift 2
       ;;
     -h|--help)
@@ -104,30 +104,30 @@ if ! command -v qm &> /dev/null; then
   exit 1
 fi
 
-validate_chingis_ssh_key "$CHINGIS_SSH_KEY_PATH"
+validate_chingis_ssh_key "$chingis_ssh_key_path"
 ensure_mukhulai_ssh_key
 
-CHINGIS_SSH_KEY=$(cat "$CHINGIS_SSH_KEY_PATH")
-MUKHULAI_SSH_KEY=$(read_mukhulai_ssh_key)
+chingis_ssh_key=$(cat "$chingis_ssh_key_path")
+mukhulai_ssh_key=$(read_mukhulai_ssh_key)
 
-echo "Creating VM $VM_ID ($VM_NAME) with user: $USER_NAME"
+echo "Creating VM $vm_id ($vm_name) with user: $username"
 
-cat << EOF > "$USER_DATA_FILE"
+cat << EOF > "$user_data"
 #cloud-config
 keyboard:
   layout: us
 locale: en_US.UTF-8
 timezone: Europe/Paris
-hostname: $VM_NAME
+hostname: $vm_name
 preserve_hostname: true
 users:
   - name: root
     shell: /bin/bash
-  - name: $USER_NAME
+  - name: $username
     groups: sudo
     ssh_authorized_keys:
-      - $CHINGIS_SSH_KEY
-      - $MUKHULAI_SSH_KEY
+      - $chingis_ssh_key
+      - $mukhulai_ssh_key
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     shell: /bin/bash
 package_update: true
@@ -138,62 +138,62 @@ runcmd:
   - systemctl enable --now qemu-guest-agent
 EOF
 
-if [[ ! -f "$CLOUD_ISO_PATH$CLOUD_IMG" ]]; then
+if [[ ! -f "$cloud_iso$cloud_img" ]]; then
   echo "Downloading Debian 12 cloud image..."
-  wget -O "$CLOUD_ISO_PATH$CLOUD_IMG" "$CLOUD_IMG_URL" || {
+  wget -O "$cloud_iso$cloud_img" "$cloud_img_url" || {
     echo "[ERROR] Failed to download cloud image"
       exit 1
     }
 fi
 
-echo "Creating VM $VM_ID ($VM_NAME)..."
-qm create "$VM_ID" \
-  --name "$VM_NAME" \
-  --memory "$VM_MEMORY" \
+echo "Creating VM $vm_id ($vm_name)..."
+qm create "$vm_id" \
+  --name "$vm_name" \
+  --memory "$vm_memory" \
   --balloon 0 \
-  --cores "$VM_CORES" \
+  --cores "$vm_cores" \
   --cpu host \
   --numa 1 \
-  --net0 "virtio,bridge=$VM_NET_BRIDGE" \
+  --net0 "virtio,bridge=$vm_net_bridge" \
   --agent 1 \
   --ostype l26 || {
     echo "[ERROR] Failed to create VM"
     exit 1
   }
 
-echo "Importing cloud image to VM $VM_ID..."
-qm importdisk "$VM_ID" "$CLOUD_ISO_PATH$CLOUD_IMG" "$VM_STORAGE" || {
+echo "Importing cloud image to VM $vm_id..."
+qm importdisk "$vm_id" "$cloud_iso$cloud_img" "$vm_storage" || {
   echo "[ERROR] Failed to import disk"
   exit 1
 }
 
-echo "Configuring VM $VM_ID..."
-qm set "$VM_ID" \
+echo "Configuring VM $vm_id..."
+qm set "$vm_id" \
   --scsihw virtio-scsi-pci \
-  --scsi0 "$VM_STORAGE:$VM_ID/vm-$VM_ID-disk-0.raw,ssd=1" \
-  --ide2 "$VM_STORAGE:cloudinit" \
+  --scsi0 "$vm_storage:$vm_id/vm-$vm_id-disk-0.raw,ssd=1" \
+  --ide2 "$vm_storage:cloudinit" \
   --boot c \
   --bootdisk scsi0 \
   --serial0 socket \
   --vga serial0 \
   --ipconfig0 ip=dhcp \
-  --cicustom "user=$VM_STORAGE:snippets/userconfig.yaml" || {
+  --cicustom "user=$vm_storage:snippets/userconfig.yaml" || {
     echo "[ERROR] Failed to configure VM"
     exit 1
   }
 
-echo "Resizing disk to $VM_DISK_SIZE..."
-qm disk resize "$VM_ID" scsi0 "$VM_DISK_SIZE" || {
+echo "Resizing disk to $vm_disk_size..."
+qm disk resize "$vm_id" scsi0 "$vm_disk_size" || {
   echo "[ERROR] Failed to resize disk"
   exit 1
 }
 
-echo "Converting VM $VM_ID to template..."
-qm template "$VM_ID" || {
+echo "Converting VM $vm_id to template..."
+qm template "$vm_id" || {
   echo "[ERROR] Failed to convert to template"
   exit 1
 }
 
-echo "Template $VM_ID ($VM_NAME) created successfully!"
+echo "Template $vm_id ($vm_name) created successfully!"
 
 exit 0

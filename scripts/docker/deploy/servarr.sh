@@ -1,17 +1,17 @@
 #!/usr/bin/env bash
 set -e
 
-WORKER_TOKEN=$1
-MANAGER_IP=$2
+worker_token=$1
+manager_ip=$2
 
-if [ "$WORKER_TOKEN" = "" ] || [ "$MANAGER_IP" = "" ]; then
+if [ "$worker_token" = "" ] || [ "$manager_ip" = "" ]; then
   echo "Usage :"
   echo "  servarr.sh <worker-token> <manager-ip>"
   echo "Exiting..."
   exit 0
 fi
 
-"$HOME"/homelab/scripts/docker/worker.sh "$WORKER_TOKEN" "$MANAGER_IP"
+$HOME/homelab/scripts/docker/worker.sh "$worker_token" "$manager_ip"
 
 docker network create servarr_net
-docker compose -f "$HOME"/homelab/docker/servarr/docker-compose.yaml up -d
+docker compose -f $HOME/homelab/docker/servarr/docker-compose.yaml up -d
