@@ -17,7 +17,7 @@ if [[ -z "$worker_token" || -z "$manager_ip" ]]; then
 fi
 
 echo "Step 1/4: Creating VM from template..."
-homelab mukhulai scripts/proxmox/vm-clone.sh "$vm_id" "$vm_name" "$target_node"
+homelab mukhulai scripts/proxmox/vm_clone.sh "$vm_id" "$vm_name" "$target_node"
 
 echo "Step 2/4: Installing Docker..."
 homelab "$vm_name" scripts/docker/install.sh "$username"

@@ -58,7 +58,7 @@ fi
 
 if [[ ! -f "$ssh_key_path" ]]; then
   echo "[ERROR] SSH key not found at $ssh_key_path"
-  echo "Run vm-template.sh first to generate required SSH keys"
+  echo "Run vm_template.sh first to generate required SSH keys"
   exit 1
 fi
 
