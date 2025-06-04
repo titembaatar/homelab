@@ -4,8 +4,9 @@ This document details the steps to configure NFS and SMB shares for existing ZFS
 **Assumptions:**
 * ZFS pools `vault` and `flash` already exist on `mukhulai`.
 * The following datasets exist and contain the relevant data:
-    * `vault/data` (Media)
-    * `vault/db` (Databases)
+    * `vault/juerbiesu` (Media)
+    * `vault/khulan` (Databases)
+    * `vault/nfs` (House shared files)
     * `flash/yesugen` (Application config files)
     * `flash/yesui` (Docker compose/stack files & Git repo)
     * `flash/moge_khatun` (VMs disks install disks)
@@ -19,10 +20,7 @@ Verify or set recommended ZFS properties on existing datasets.
 zfs set compression=lz4 vault flash
 zfs set atime=off vault flash
 zfs set recordsize=1M vault/juerbiesu
-zfs set recordsize=128k vault/khulan
-zfs set recordsize=128k flash/yesugen
-zfs set recordsize=128k flash/yesui
-zfs set recordsize=128k flash/moge_khatun
+zfs set recordsize=128k vault/khulan vault/nfs flash/yesugen flash/yesui flash/moge_khatun
 ```
 
 ## User and Group Setup
